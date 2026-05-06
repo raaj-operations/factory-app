@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Factory App</title>
+</head>
+<body>
+
+<h2>Production Entry</h2>
+<input id="pcode" placeholder="Product Code">
+<input id="pqty" type="number" placeholder="Qty">
+<button onclick="submitData('production')">Submit</button>
+
+<h2>Raw Material Purchase</h2>
+<input id="rcode" placeholder="Material Code">
+<input id="rqty" type="number" placeholder="Qty">
+<button onclick="submitData('purchase')">Submit</button>
+
+<h2>Dispatch</h2>
+<input id="dcode" placeholder="Product Code">
+<input id="dqty" type="number" placeholder="Qty">
+<button onclick="submitData('dispatch')">Submit</button>
+
+<p id="msg"></p>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbwqnHC4T0QuDGtwjiuAq6PtxyP58J4Ul5j4ZvJ45_0F-zMvPtMaEMLtWYvVejxiy66G/exec";
+
+async function submitData(type) {
+  let code, qty;
+
+  if (type === "production") {
+    code = document.getElementById("pcode").value;
+    qty = document.getElementById("pqty").value;
+  }
+
+  if (type === "purchase") {
+    code = document.getElementById("rcode").value;
+    qty = document.getElementById("rqty").value;
+  }
+
+  if (type === "dispatch") {
+    code = document.getElementById("dcode").value;
+    qty = document.getElementById("dqty").value;
+  }
+
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        type: type,
+        code: code,
+        qty: qty
+      })
+    });
+
+    const data = await res.json();
+    document.getElementById("msg").innerText = "Submitted successfully!";
+  } catch (err) {
+    console.error(err);
+    document.getElementById("msg").innerText = "Error occurred!";
+  }
+}
+</script>
+
+</body>
+</html>
