@@ -3,70 +3,396 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Factory Inventory</title>
+  <title>Factory Inventory System</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
-    body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; }
-    h2 { color: #333; border-bottom: 2px solid #007bff; padding-bottom: 8px; }
-    .section { background: #f9f9f9; padding: 20px; margin-bottom: 20px; border-radius: 8px; }
-    input { padding: 8px; margin: 6px 0; width: 100%; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
-    button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 15px; }
-    button:hover { background: #0056b3; }
+    :root {
+      --bg: #f4f5f7;
+      --surface: #ffffff;
+      --border: #d0d4da;
+      --border-light: #e8eaed;
+      --text: #1a1d23;
+      --text-muted: #6b7280;
+      --header-bg: #f8f9fa;
+      --prod: #16a34a;
+      --prod-light: #dcfce7;
+      --purch: #2563eb;
+      --purch-light: #dbeafe;
+      --disp: #ea580c;
+      --disp-light: #ffedd5;
+      --radius: 8px;
+      --shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'IBM Plex Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 32px 16px 60px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    header h1 {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+      color: var(--text);
+    }
+
+    header p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Status bar */
+    #statusBar {
+      max-width: 700px;
+      margin: 0 auto 24px;
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      font-size: 13.5px;
+      font-weight: 500;
+      display: none;
+      align-items: center;
+      gap: 10px;
+    }
+    #statusBar.show { display: flex; }
+    #statusBar.loading { background: #fef9c3; color: #854d0e; border: 1px solid #fde68a; }
+    #statusBar.success { background: #dcfce7; color: #14532d; border: 1px solid #bbf7d0; }
+    #statusBar.error   { background: #fee2e2; color: #7f1d1d; border: 1px solid #fecaca; }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      max-width: 700px;
+      margin: 0 auto 24px;
+      overflow: hidden;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .card-header .badge {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+
+    .card-header h2 {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .prod-accent  .card-header { border-left: 4px solid var(--prod); }
+    .purch-accent .card-header { border-left: 4px solid var(--purch); }
+    .disp-accent  .card-header { border-left: 4px solid var(--disp); }
+
+    .prod-accent  .badge { background: var(--prod-light);  color: var(--prod); }
+    .purch-accent .badge { background: var(--purch-light); color: var(--purch); }
+    .disp-accent  .badge { background: var(--disp-light);  color: var(--disp); }
+
+    /* Sheet-style table */
+    .sheet-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .sheet-table thead th {
+      background: var(--header-bg);
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border-light);
+      padding: 9px 14px;
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      text-align: left;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .sheet-table thead th:last-child { border-right: none; }
+
+    .sheet-table tbody td {
+      border-bottom: 1px solid var(--border-light);
+      border-right: 1px solid var(--border-light);
+      padding: 0;
+      vertical-align: middle;
+    }
+
+    .sheet-table tbody td:last-child { border-right: none; }
+
+    .sheet-table tbody td input {
+      width: 100%;
+      border: none;
+      outline: none;
+      padding: 11px 14px;
+      font-size: 14px;
+      font-family: 'IBM Plex Sans', sans-serif;
+      background: transparent;
+      color: var(--text);
+      transition: background 0.15s;
+    }
+
+    .sheet-table tbody td input:focus {
+      background: #fffbeb;
+    }
+
+    .sheet-table tbody td input[type="date"] {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+    }
+
+    .confirm-cell {
+      text-align: center;
+      padding: 11px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: 'IBM Plex Mono', monospace;
+      background: #f0fdf4;
+      color: var(--prod);
+      min-width: 90px;
+    }
+
+    /* Submit button */
+    .card-footer {
+      padding: 14px 20px;
+      background: var(--header-bg);
+      border-top: 1px solid var(--border-light);
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 11px;
+      font-size: 13.5px;
+      font-weight: 600;
+      font-family: 'IBM Plex Sans', sans-serif;
+      letter-spacing: 0.2px;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+
+    .submit-btn:hover  { opacity: 0.88; }
+    .submit-btn:active { transform: scale(0.99); }
+
+    .btn-prod  { background: var(--prod); }
+    .btn-purch { background: var(--purch); }
+    .btn-disp  { background: var(--disp); }
+
+    /* Col widths */
+    .col-date    { width: 150px; }
+    .col-code    { width: auto; }
+    .col-qty     { width: 120px; }
+    .col-confirm { width: 100px; }
   </style>
 </head>
 <body>
 
-  <h1>🏭 Factory Inventory System</h1>
+  <header>
+    <h1>🏭 Factory Inventory System</h1>
+    <p>Enter data below — sheets update automatically within 1 minute</p>
+  </header>
 
-  <!-- PRODUCTION -->
-  <div class="section">
-    <h2>⚙️ Production Entry</h2>
-    <input type="text" id="prodCode" placeholder="Product Code (e.g. P001)" />
-    <input type="number" id="prodQty" placeholder="Quantity" />
-    <button onclick="submitEntry('production', 'prodCode', 'prodQty')">Submit Production</button>
+  <!-- Status Bar -->
+  <div id="statusBar">
+    <span id="statusIcon"></span>
+    <span id="statusText"></span>
   </div>
 
-  <!-- RAW MATERIAL PURCHASE -->
-  <div class="section">
-    <h2>📦 Raw Material Purchase</h2>
-    <input type="text" id="purchaseCode" placeholder="Material Code (e.g. M001)" />
-    <input type="number" id="purchaseQty" placeholder="Quantity" />
-    <button onclick="submitEntry('purchase', 'purchaseCode', 'purchaseQty')">Submit Purchase</button>
+  <!-- ⚙️ PRODUCTION -->
+  <div class="card prod-accent">
+    <div class="card-header">
+      <span class="badge">Production</span>
+      <h2>⚙️ Finished Goods Entry</h2>
+    </div>
+    <table class="sheet-table">
+      <thead>
+        <tr>
+          <th class="col-date">Date</th>
+          <th class="col-code">Product Code</th>
+          <th class="col-qty">Quantity</th>
+          <th class="col-confirm">Confirm</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><input type="date" id="prodDate" /></td>
+          <td><input type="text" id="prodCode" placeholder="e.g. P001" /></td>
+          <td><input type="number" id="prodQty" placeholder="0" min="1" /></td>
+          <td class="confirm-cell">✅ TRUE</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="card-footer">
+      <button class="submit-btn btn-prod" onclick="submitEntry('production')">Submit Production Entry →</button>
+    </div>
   </div>
 
-  <!-- DISPATCH -->
-  <div class="section">
-    <h2>🚚 Dispatch Entry</h2>
-    <input type="text" id="dispatchCode" placeholder="Product Code (e.g. P001)" />
-    <input type="number" id="dispatchQty" placeholder="Quantity" />
-    <button onclick="submitEntry('dispatch', 'dispatchCode', 'dispatchQty')">Submit Dispatch</button>
+  <!-- 📦 RAW MATERIAL PURCHASE -->
+  <div class="card purch-accent">
+    <div class="card-header">
+      <span class="badge">Purchase</span>
+      <h2>📦 Raw Material Purchase</h2>
+    </div>
+    <table class="sheet-table">
+      <thead>
+        <tr>
+          <th class="col-date">Date</th>
+          <th class="col-code">Material Code</th>
+          <th class="col-qty">Quantity</th>
+          <th class="col-confirm">Confirm</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><input type="date" id="purchaseDate" /></td>
+          <td><input type="text" id="purchaseCode" placeholder="e.g. M001" /></td>
+          <td><input type="number" id="purchaseQty" placeholder="0" min="1" /></td>
+          <td class="confirm-cell">✅ TRUE</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="card-footer">
+      <button class="submit-btn btn-purch" onclick="submitEntry('purchase')">Submit Purchase Entry →</button>
+    </div>
+  </div>
+
+  <!-- 🚚 DISPATCH -->
+  <div class="card disp-accent">
+    <div class="card-header">
+      <span class="badge">Dispatch</span>
+      <h2>🚚 Dispatch Entry</h2>
+    </div>
+    <table class="sheet-table">
+      <thead>
+        <tr>
+          <th class="col-date">Date</th>
+          <th class="col-code">Product Code</th>
+          <th class="col-qty">Quantity</th>
+          <th class="col-confirm">Confirm</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><input type="date" id="dispatchDate" /></td>
+          <td><input type="text" id="dispatchCode" placeholder="e.g. P001" /></td>
+          <td><input type="number" id="dispatchQty" placeholder="0" min="1" /></td>
+          <td class="confirm-cell">✅ TRUE</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="card-footer">
+      <button class="submit-btn btn-disp" onclick="submitEntry('dispatch')">Submit Dispatch Entry →</button>
+    </div>
   </div>
 
   <script>
-    // ✅ PASTE YOUR NEW APPS SCRIPT URL HERE
+    // ✅ YOUR APPS SCRIPT URL — replace if you redeploy
     const API_URL = "https://script.google.com/macros/s/AKfycbwqnHC4T0QuDGtwjiuAq6PtxyP58J4Ul5j4ZvJ45_0F-zMvPtMaEMLtWYvVejxiy66G/exec";
 
-    async function submitEntry(type, codeId, qtyId) {
-      const code = document.getElementById(codeId).value.trim();
-      const qty  = document.getElementById(qtyId).value.trim();
+    // Set today's date on all date fields automatically
+    window.onload = function () {
+      const today = new Date().toISOString().split("T")[0];
+      document.getElementById("prodDate").value     = today;
+      document.getElementById("purchaseDate").value = today;
+      document.getElementById("dispatchDate").value = today;
+    };
 
-      if (!code || !qty) {
-        alert("⚠️ Please enter both Code and Quantity");
+    function showStatus(msg, type, icon) {
+      const bar  = document.getElementById("statusBar");
+      const text = document.getElementById("statusText");
+      const ico  = document.getElementById("statusIcon");
+      text.textContent = msg;
+      ico.textContent  = icon;
+      bar.className    = "show " + type;
+      if (type !== "loading") {
+        setTimeout(() => { bar.className = ""; }, 5000);
+      }
+    }
+
+    function submitEntry(type) {
+      let date, code, qty;
+
+      if (type === "production") {
+        date = document.getElementById("prodDate").value;
+        code = document.getElementById("prodCode").value.trim();
+        qty  = document.getElementById("prodQty").value.trim();
+      } else if (type === "purchase") {
+        date = document.getElementById("purchaseDate").value;
+        code = document.getElementById("purchaseCode").value.trim();
+        qty  = document.getElementById("purchaseQty").value.trim();
+      } else if (type === "dispatch") {
+        date = document.getElementById("dispatchDate").value;
+        code = document.getElementById("dispatchCode").value.trim();
+        qty  = document.getElementById("dispatchQty").value.trim();
+      }
+
+      if (!date || !code || !qty) {
+        showStatus("Please fill in all fields before submitting.", "error", "⚠️");
         return;
       }
 
-      const url = `${API_URL}?type=${type}&code=${encodeURIComponent(code)}&qty=${qty}`;
+      showStatus("Submitting entry to Google Sheets...", "loading", "⏳");
 
-      try {
-        await fetch(url, { method: "GET", mode: "no-cors" });
-        alert("✅ Submitted successfully! Sheet will update within 1 minute.");
+      // ✅ JSONP method — bypasses CORS completely, works with Apps Script
+      const callbackName = "jsonp_cb_" + Date.now();
+      const url = `${API_URL}?type=${encodeURIComponent(type)}&code=${encodeURIComponent(code)}&qty=${encodeURIComponent(qty)}&date=${encodeURIComponent(date)}&callback=${callbackName}`;
 
-        // Clear inputs after submit
-        document.getElementById(codeId).value = "";
-        document.getElementById(qtyId).value = "";
+      const script = document.createElement("script");
+      script.src = url;
 
-      } catch (err) {
-        alert("❌ Error: " + err.message);
-      }
+      // Called by Apps Script response: callbackName({ status: "success" })
+      window[callbackName] = function (response) {
+        document.body.removeChild(script);
+        delete window[callbackName];
+
+        if (response.status === "success") {
+          showStatus("Entry submitted! Google Sheet will update within 1 minute.", "success", "✅");
+          // Clear code and qty fields, keep date
+          if (type === "production") {
+            document.getElementById("prodCode").value = "";
+            document.getElementById("prodQty").value  = "";
+          } else if (type === "purchase") {
+            document.getElementById("purchaseCode").value = "";
+            document.getElementById("purchaseQty").value  = "";
+          } else {
+            document.getElementById("dispatchCode").value = "";
+            document.getElementById("dispatchQty").value  = "";
+          }
+        } else {
+          showStatus("Error: " + (response.message || "Unknown error. Check your Apps Script."), "error", "❌");
+        }
+      };
+
+      script.onerror = function () {
+        document.body.removeChild(script);
+        delete window[callbackName];
+        showStatus("Could not reach server. Check your API URL and redeploy Apps Script.", "error", "❌");
+      };
+
+      document.body.appendChild(script);
     }
   </script>
 
