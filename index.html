@@ -1,66 +1,74 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Factory App</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Factory Inventory</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; }
+    h2 { color: #333; border-bottom: 2px solid #007bff; padding-bottom: 8px; }
+    .section { background: #f9f9f9; padding: 20px; margin-bottom: 20px; border-radius: 8px; }
+    input { padding: 8px; margin: 6px 0; width: 100%; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+    button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 15px; }
+    button:hover { background: #0056b3; }
+  </style>
 </head>
 <body>
 
-<h2>Production Entry</h2>
-<input id="pcode" placeholder="Product Code">
-<input id="pqty" type="number" placeholder="Qty">
-<button onclick="submitData('production')">Submit</button>
+  <h1>🏭 Factory Inventory System</h1>
 
-<h2>Raw Material Purchase</h2>
-<input id="rcode" placeholder="Material Code">
-<input id="rqty" type="number" placeholder="Qty">
-<button onclick="submitData('purchase')">Submit</button>
+  <!-- PRODUCTION -->
+  <div class="section">
+    <h2>⚙️ Production Entry</h2>
+    <input type="text" id="prodCode" placeholder="Product Code (e.g. P001)" />
+    <input type="number" id="prodQty" placeholder="Quantity" />
+    <button onclick="submitEntry('production', 'prodCode', 'prodQty')">Submit Production</button>
+  </div>
 
-<h2>Dispatch</h2>
-<input id="dcode" placeholder="Product Code">
-<input id="dqty" type="number" placeholder="Qty">
-<button onclick="submitData('dispatch')">Submit</button>
+  <!-- RAW MATERIAL PURCHASE -->
+  <div class="section">
+    <h2>📦 Raw Material Purchase</h2>
+    <input type="text" id="purchaseCode" placeholder="Material Code (e.g. M001)" />
+    <input type="number" id="purchaseQty" placeholder="Quantity" />
+    <button onclick="submitEntry('purchase', 'purchaseCode', 'purchaseQty')">Submit Purchase</button>
+  </div>
 
-<p id="msg"></p>
+  <!-- DISPATCH -->
+  <div class="section">
+    <h2>🚚 Dispatch Entry</h2>
+    <input type="text" id="dispatchCode" placeholder="Product Code (e.g. P001)" />
+    <input type="number" id="dispatchQty" placeholder="Quantity" />
+    <button onclick="submitEntry('dispatch', 'dispatchCode', 'dispatchQty')">Submit Dispatch</button>
+  </div>
 
-<script>
-const API_URL = "https://script.google.com/macros/s/AKfycbwqnHC4T0QuDGtwjiuAq6PtxyP58J4Ul5j4ZvJ45_0F-zMvPtMaEMLtWYvVejxiy66G/exec";
+  <script>
+    // ✅ PASTE YOUR NEW APPS SCRIPT URL HERE
+    const API_URL = "https://script.google.com/macros/s/AKfycbwqnHC4T0QuDGtwjiuAq6PtxyP58J4Ul5j4ZvJ45_0F-zMvPtMaEMLtWYvVejxiy66G/exec";
 
-async function submitData(type) {
-  let code, qty;
+    async function submitEntry(type, codeId, qtyId) {
+      const code = document.getElementById(codeId).value.trim();
+      const qty  = document.getElementById(qtyId).value.trim();
 
-  if (type === "production") {
-    code = document.getElementById("pcode").value;
-    qty = document.getElementById("pqty").value;
-  }
+      if (!code || !qty) {
+        alert("⚠️ Please enter both Code and Quantity");
+        return;
+      }
 
-  if (type === "purchase") {
-    code = document.getElementById("rcode").value;
-    qty = document.getElementById("rqty").value;
-  }
+      const url = `${API_URL}?type=${type}&code=${encodeURIComponent(code)}&qty=${qty}`;
 
-  if (type === "dispatch") {
-    code = document.getElementById("dcode").value;
-    qty = document.getElementById("dqty").value;
-  }
+      try {
+        await fetch(url, { method: "GET", mode: "no-cors" });
+        alert("✅ Submitted successfully! Sheet will update within 1 minute.");
 
-  try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      body: JSON.stringify({
-        type: type,
-        code: code,
-        qty: qty
-      })
-    });
+        // Clear inputs after submit
+        document.getElementById(codeId).value = "";
+        document.getElementById(qtyId).value = "";
 
-    const data = await res.json();
-    document.getElementById("msg").innerText = "Submitted successfully!";
-  } catch (err) {
-    console.error(err);
-    document.getElementById("msg").innerText = "Error occurred!";
-  }
-}
-</script>
+      } catch (err) {
+        alert("❌ Error: " + err.message);
+      }
+    }
+  </script>
 
 </body>
 </html>
