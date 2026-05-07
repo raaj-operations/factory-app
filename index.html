@@ -20,6 +20,10 @@
       --purch-light: #dbeafe;
       --disp: #ea580c;
       --disp-light: #ffedd5;
+      --warn: #d97706;
+      --warn-light: #fffbeb;
+      --danger: #dc2626;
+      --danger-light: #fee2e2;
       --radius: 8px;
       --shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
     }
@@ -31,52 +35,78 @@
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      padding: 32px 16px 60px;
     }
 
-    header {
-      text-align: center;
-      margin-bottom: 36px;
+    /* ── NAV ── */
+    nav {
+      background: #1a1d23;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
 
-    header h1 {
-      font-size: 22px;
+    nav .brand {
+      color: #fff;
       font-weight: 600;
-      letter-spacing: -0.3px;
-      color: var(--text);
+      font-size: 15px;
+      margin-right: 20px;
+      padding: 16px 0;
+      white-space: nowrap;
     }
 
-    header p {
-      font-size: 13px;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
-
-    /* Status bar */
-    #statusBar {
-      max-width: 700px;
-      margin: 0 auto 24px;
-      padding: 12px 16px;
-      border-radius: var(--radius);
+    nav button {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      padding: 18px 14px;
       font-size: 13.5px;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-weight: 500;
+      border-bottom: 2px solid transparent;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    nav button:hover { color: #e2e8f0; }
+    nav button.active { color: #fff; border-bottom-color: #3b82f6; }
+
+    /* ── PAGES ── */
+    .page { display: none; padding: 28px 16px 60px; max-width: 820px; margin: 0 auto; }
+    .page.active { display: block; }
+
+    /* ── PAGE HEADER ── */
+    .page-header { margin-bottom: 24px; }
+    .page-header h1 { font-size: 20px; font-weight: 600; }
+    .page-header p  { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+    /* ── STATUS BAR ── */
+    .status-bar {
+      padding: 11px 16px;
+      border-radius: var(--radius);
+      font-size: 13px;
       font-weight: 500;
       display: none;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
+      margin-bottom: 20px;
     }
-    #statusBar.show { display: flex; }
-    #statusBar.loading { background: #fef9c3; color: #854d0e; border: 1px solid #fde68a; }
-    #statusBar.success { background: #dcfce7; color: #14532d; border: 1px solid #bbf7d0; }
-    #statusBar.error   { background: #fee2e2; color: #7f1d1d; border: 1px solid #fecaca; }
+    .status-bar.show    { display: flex; }
+    .status-bar.loading { background: #fef9c3; color: #854d0e; border: 1px solid #fde68a; }
+    .status-bar.success { background: #dcfce7; color: #14532d; border: 1px solid #bbf7d0; }
+    .status-bar.error   { background: #fee2e2; color: #7f1d1d; border: 1px solid #fecaca; }
 
-    /* Cards */
+    /* ── CARDS ── */
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      max-width: 700px;
-      margin: 0 auto 24px;
+      margin-bottom: 20px;
       overflow: hidden;
     }
 
@@ -84,46 +114,40 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 14px 20px;
+      padding: 13px 20px;
       border-bottom: 1px solid var(--border-light);
     }
 
-    .card-header .badge {
-      font-size: 11px;
+    .card-header h2 { font-size: 14.5px; font-weight: 600; }
+
+    .accent-badge {
+      font-size: 10.5px;
       font-weight: 600;
       letter-spacing: 0.6px;
       text-transform: uppercase;
-      padding: 3px 10px;
+      padding: 2px 9px;
       border-radius: 20px;
     }
 
-    .card-header h2 {
-      font-size: 15px;
-      font-weight: 600;
-    }
+    .prod-accent  .card-header { border-left: 3px solid var(--prod); }
+    .purch-accent .card-header { border-left: 3px solid var(--purch); }
+    .disp-accent  .card-header { border-left: 3px solid var(--disp); }
 
-    .prod-accent  .card-header { border-left: 4px solid var(--prod); }
-    .purch-accent .card-header { border-left: 4px solid var(--purch); }
-    .disp-accent  .card-header { border-left: 4px solid var(--disp); }
+    .prod-accent  .accent-badge { background: var(--prod-light);  color: var(--prod); }
+    .purch-accent .accent-badge { background: var(--purch-light); color: var(--purch); }
+    .disp-accent  .accent-badge { background: var(--disp-light);  color: var(--disp); }
 
-    .prod-accent  .badge { background: var(--prod-light);  color: var(--prod); }
-    .purch-accent .badge { background: var(--purch-light); color: var(--purch); }
-    .disp-accent  .badge { background: var(--disp-light);  color: var(--disp); }
-
-    /* Sheet-style table */
-    .sheet-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
+    /* ── SHEET TABLE ── */
+    .sheet-table { width: 100%; border-collapse: collapse; }
 
     .sheet-table thead th {
       background: var(--header-bg);
       border-bottom: 1px solid var(--border);
       border-right: 1px solid var(--border-light);
-      padding: 9px 14px;
-      font-size: 11.5px;
+      padding: 8px 14px;
+      font-size: 11px;
       font-weight: 600;
-      letter-spacing: 0.4px;
+      letter-spacing: 0.5px;
       text-transform: uppercase;
       color: var(--text-muted);
       text-align: left;
@@ -141,49 +165,45 @@
 
     .sheet-table tbody td:last-child { border-right: none; }
 
+    .sheet-table tbody td select,
     .sheet-table tbody td input {
       width: 100%;
       border: none;
       outline: none;
-      padding: 11px 14px;
-      font-size: 14px;
+      padding: 10px 14px;
+      font-size: 13.5px;
       font-family: 'IBM Plex Sans', sans-serif;
       background: transparent;
       color: var(--text);
       transition: background 0.15s;
     }
 
-    .sheet-table tbody td input:focus {
-      background: #fffbeb;
-    }
+    .sheet-table tbody td select:focus,
+    .sheet-table tbody td input:focus { background: #fffbeb; }
 
-    .sheet-table tbody td input[type="date"] {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 13px;
-    }
+    .sheet-table tbody td select { cursor: pointer; }
 
-    .confirm-cell {
-      text-align: center;
-      padding: 11px 14px;
+    .auto-cell {
+      padding: 10px 14px;
       font-size: 12px;
       font-weight: 600;
       font-family: 'IBM Plex Mono', monospace;
-      background: #f0fdf4;
-      color: var(--prod);
-      min-width: 90px;
+      color: var(--text-muted);
+      background: var(--header-bg);
+      white-space: nowrap;
     }
 
-    /* Submit button */
+    /* ── CARD FOOTER ── */
     .card-footer {
-      padding: 14px 20px;
+      padding: 13px 20px;
       background: var(--header-bg);
       border-top: 1px solid var(--border-light);
     }
 
     .submit-btn {
       width: 100%;
-      padding: 11px;
-      font-size: 13.5px;
+      padding: 10px;
+      font-size: 13px;
       font-weight: 600;
       font-family: 'IBM Plex Sans', sans-serif;
       letter-spacing: 0.2px;
@@ -194,207 +214,611 @@
       transition: opacity 0.15s, transform 0.1s;
     }
 
-    .submit-btn:hover  { opacity: 0.88; }
-    .submit-btn:active { transform: scale(0.99); }
-
+    .submit-btn:hover    { opacity: 0.88; }
+    .submit-btn:active   { transform: scale(0.99); }
+    .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
     .btn-prod  { background: var(--prod); }
     .btn-purch { background: var(--purch); }
     .btn-disp  { background: var(--disp); }
 
-    /* Col widths */
-    .col-date    { width: 150px; }
+    /* ── STOCK PAGE ── */
+    .stock-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media(max-width: 620px) { .stock-grid { grid-template-columns: 1fr; } }
+
+    .stock-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+    .stock-table thead th {
+      background: var(--header-bg);
+      border-bottom: 2px solid var(--border);
+      padding: 9px 14px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      text-align: left;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .stock-table tbody td {
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .stock-table tbody tr:last-child td { border-bottom: none; }
+    .stock-table tbody tr:hover td { background: #f8fafc; }
+
+    .stock-qty {
+      font-weight: 600;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 14px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge-ok   { background: var(--prod-light);  color: var(--prod); }
+    .badge-low  { background: var(--warn-light);   color: var(--warn); }
+    .badge-out  { background: var(--danger-light); color: var(--danger); }
+
+    .refresh-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-family: 'IBM Plex Sans', sans-serif;
+      transition: background 0.15s;
+    }
+    .refresh-btn:hover { background: var(--border-light); }
+
+    .card-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 20px;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .card-header-row h2 { font-size: 14.5px; font-weight: 600; }
+
+    /* ── LEDGER PAGE ── */
+    .ledger-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+    .ledger-table thead th {
+      background: var(--header-bg);
+      border-bottom: 2px solid var(--border);
+      padding: 9px 14px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      text-align: left;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .ledger-table tbody td {
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border-light);
+      font-size: 13px;
+    }
+    .ledger-table tbody tr:last-child td { border-bottom: none; }
+    .ledger-table tbody tr:hover td { background: #f8fafc; }
+
+    .qty-pos { color: var(--prod);   font-weight: 700; font-family: 'IBM Plex Mono', monospace; }
+    .qty-neg { color: var(--danger); font-weight: 700; font-family: 'IBM Plex Mono', monospace; }
+
+    .type-chip {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .chip-product  { background: var(--prod-light);  color: var(--prod); }
+    .chip-raw      { background: var(--purch-light); color: var(--purch); }
+
+    .empty-row td {
+      text-align: center;
+      padding: 28px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .loading-row td {
+      text-align: center;
+      padding: 24px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    /* col widths */
+    .col-date    { width: 130px; }
     .col-code    { width: auto; }
-    .col-qty     { width: 120px; }
-    .col-confirm { width: 100px; }
+    .col-qty     { width: 110px; }
+    .col-auto    { width: 110px; }
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>🏭 Factory Inventory System</h1>
-    <p>Enter data below — sheets update automatically within 1 minute</p>
-  </header>
+  <!-- NAV -->
+  <nav>
+    <span class="brand">🏭 Inventory</span>
+    <button class="active" onclick="showPage('entry', this)">Entry</button>
+    <button onclick="showPage('stock', this)">Stock</button>
+    <button onclick="showPage('ledger', this)">Ledger</button>
+  </nav>
 
-  <!-- Status Bar -->
-  <div id="statusBar">
-    <span id="statusIcon"></span>
-    <span id="statusText"></span>
+  <!-- ═══════════════════════════════════════ -->
+  <!-- ENTRY PAGE                             -->
+  <!-- ═══════════════════════════════════════ -->
+  <div id="page-entry" class="page active">
+    <div class="page-header">
+      <h1>Record Entry</h1>
+      <p>Select from dropdown — entries process instantly</p>
+    </div>
+
+    <div id="entry-status" class="status-bar"></div>
+
+    <!-- Production -->
+    <div class="card prod-accent">
+      <div class="card-header">
+        <span class="accent-badge">Production</span>
+        <h2>⚙️ Finished Goods Entry</h2>
+      </div>
+      <table class="sheet-table">
+        <thead>
+          <tr>
+            <th class="col-date">Date</th>
+            <th class="col-code">Product</th>
+            <th class="col-qty">Quantity</th>
+            <th class="col-auto">Auto</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="date" id="prodDate" /></td>
+            <td>
+              <select id="prodCode">
+                <option value="">Loading products…</option>
+              </select>
+            </td>
+            <td><input type="number" id="prodQty" placeholder="0" min="1" /></td>
+            <td class="auto-cell">✅ confirm</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="card-footer">
+        <button class="submit-btn btn-prod" id="btn-prod" onclick="submitEntry('production')">
+          Submit Production Entry →
+        </button>
+      </div>
+    </div>
+
+    <!-- Purchase -->
+    <div class="card purch-accent">
+      <div class="card-header">
+        <span class="accent-badge">Purchase</span>
+        <h2>📦 Raw Material Purchase</h2>
+      </div>
+      <table class="sheet-table">
+        <thead>
+          <tr>
+            <th class="col-date">Date</th>
+            <th class="col-code">Material</th>
+            <th class="col-qty">Quantity</th>
+            <th class="col-auto">Auto</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="date" id="purchDate" /></td>
+            <td>
+              <select id="purchCode">
+                <option value="">Loading materials…</option>
+              </select>
+            </td>
+            <td><input type="number" id="purchQty" placeholder="0" min="1" /></td>
+            <td class="auto-cell">✅ confirm</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="card-footer">
+        <button class="submit-btn btn-purch" id="btn-purch" onclick="submitEntry('purchase')">
+          Submit Purchase Entry →
+        </button>
+      </div>
+    </div>
+
+    <!-- Dispatch -->
+    <div class="card disp-accent">
+      <div class="card-header">
+        <span class="accent-badge">Dispatch</span>
+        <h2>🚚 Dispatch Entry</h2>
+      </div>
+      <table class="sheet-table">
+        <thead>
+          <tr>
+            <th class="col-date">Date</th>
+            <th class="col-code">Product</th>
+            <th class="col-qty">Quantity</th>
+            <th class="col-auto">Auto</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="date" id="dispDate" /></td>
+            <td>
+              <select id="dispCode">
+                <option value="">Loading products…</option>
+              </select>
+            </td>
+            <td><input type="number" id="dispQty" placeholder="0" min="1" /></td>
+            <td class="auto-cell">✅ confirm</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="card-footer">
+        <button class="submit-btn btn-disp" id="btn-disp" onclick="submitEntry('dispatch')">
+          Submit Dispatch Entry →
+        </button>
+      </div>
+    </div>
   </div>
 
-  <!-- ⚙️ PRODUCTION -->
-  <div class="card prod-accent">
-    <div class="card-header">
-      <span class="badge">Production</span>
-      <h2>⚙️ Finished Goods Entry</h2>
+  <!-- ═══════════════════════════════════════ -->
+  <!-- STOCK PAGE                             -->
+  <!-- ═══════════════════════════════════════ -->
+  <div id="page-stock" class="page">
+    <div class="page-header">
+      <h1>Current Stock</h1>
+      <p>Live view from Google Sheets — low stock highlighted</p>
     </div>
-    <table class="sheet-table">
-      <thead>
-        <tr>
-          <th class="col-date">Date</th>
-          <th class="col-code">Product Code</th>
-          <th class="col-qty">Quantity</th>
-          <th class="col-confirm">Confirm</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><input type="date" id="prodDate" /></td>
-          <td><input type="text" id="prodCode" placeholder="e.g. P001" /></td>
-          <td><input type="number" id="prodQty" placeholder="0" min="1" /></td>
-          <td class="confirm-cell">✅ TRUE</td>
-        </tr>
-      </tbody>
-    </table>
-    <div class="card-footer">
-      <button class="submit-btn btn-prod" onclick="submitEntry('production')">Submit Production Entry →</button>
+
+    <div id="stock-status" class="status-bar"></div>
+
+    <div class="stock-grid">
+      <!-- Finished Goods -->
+      <div class="card">
+        <div class="card-header-row">
+          <h2>⚙️ Finished Goods</h2>
+          <button class="refresh-btn" onclick="loadStock()">↻ Refresh</button>
+        </div>
+        <table class="stock-table">
+          <thead>
+            <tr><th>Code</th><th>Name</th><th>Stock</th><th>Status</th></tr>
+          </thead>
+          <tbody id="fg-tbody">
+            <tr class="loading-row"><td colspan="4">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Raw Materials -->
+      <div class="card">
+        <div class="card-header-row">
+          <h2>📦 Raw Materials</h2>
+          <button class="refresh-btn" onclick="loadStock()">↻ Refresh</button>
+        </div>
+        <table class="stock-table">
+          <thead>
+            <tr><th>Code</th><th>Name</th><th>Stock</th><th>Status</th></tr>
+          </thead>
+          <tbody id="rm-tbody">
+            <tr class="loading-row"><td colspan="4">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
-  <!-- 📦 RAW MATERIAL PURCHASE -->
-  <div class="card purch-accent">
-    <div class="card-header">
-      <span class="badge">Purchase</span>
-      <h2>📦 Raw Material Purchase</h2>
+  <!-- ═══════════════════════════════════════ -->
+  <!-- LEDGER PAGE                            -->
+  <!-- ═══════════════════════════════════════ -->
+  <div id="page-ledger" class="page">
+    <div class="page-header">
+      <h1>Stock Ledger</h1>
+      <p>Last 20 transactions — newest first</p>
     </div>
-    <table class="sheet-table">
-      <thead>
-        <tr>
-          <th class="col-date">Date</th>
-          <th class="col-code">Material Code</th>
-          <th class="col-qty">Quantity</th>
-          <th class="col-confirm">Confirm</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><input type="date" id="purchaseDate" /></td>
-          <td><input type="text" id="purchaseCode" placeholder="e.g. M001" /></td>
-          <td><input type="number" id="purchaseQty" placeholder="0" min="1" /></td>
-          <td class="confirm-cell">✅ TRUE</td>
-        </tr>
-      </tbody>
-    </table>
-    <div class="card-footer">
-      <button class="submit-btn btn-purch" onclick="submitEntry('purchase')">Submit Purchase Entry →</button>
-    </div>
-  </div>
 
-  <!-- 🚚 DISPATCH -->
-  <div class="card disp-accent">
-    <div class="card-header">
-      <span class="badge">Dispatch</span>
-      <h2>🚚 Dispatch Entry</h2>
-    </div>
-    <table class="sheet-table">
-      <thead>
-        <tr>
-          <th class="col-date">Date</th>
-          <th class="col-code">Product Code</th>
-          <th class="col-qty">Quantity</th>
-          <th class="col-confirm">Confirm</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><input type="date" id="dispatchDate" /></td>
-          <td><input type="text" id="dispatchCode" placeholder="e.g. P001" /></td>
-          <td><input type="number" id="dispatchQty" placeholder="0" min="1" /></td>
-          <td class="confirm-cell">✅ TRUE</td>
-        </tr>
-      </tbody>
-    </table>
-    <div class="card-footer">
-      <button class="submit-btn btn-disp" onclick="submitEntry('dispatch')">Submit Dispatch Entry →</button>
+    <div id="ledger-status" class="status-bar"></div>
+
+    <div class="card">
+      <div class="card-header-row">
+        <h2>📋 Transaction History</h2>
+        <button class="refresh-btn" onclick="loadLedger()">↻ Refresh</button>
+      </div>
+      <table class="ledger-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Code</th>
+            <th>Type</th>
+            <th>Qty</th>
+            <th>Remark</th>
+          </tr>
+        </thead>
+        <tbody id="ledger-tbody">
+          <tr class="loading-row"><td colspan="5">Loading…</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
   <script>
-    // ✅ YOUR APPS SCRIPT URL — replace if you redeploy
+    // ═══════════════════════════════════════════════════
+    // CONFIG — paste your Apps Script Web App URL here
+    // ═══════════════════════════════════════════════════
     const API_URL = "https://script.google.com/macros/s/AKfycbwqnHC4T0QuDGtwjiuAq6PtxyP58J4Ul5j4ZvJ45_0F-zMvPtMaEMLtWYvVejxiy66G/exec";
 
-    // Set today's date on all date fields automatically
-    window.onload = function () {
-      const today = new Date().toISOString().split("T")[0];
-      document.getElementById("prodDate").value     = today;
-      document.getElementById("purchaseDate").value = today;
-      document.getElementById("dispatchDate").value = today;
+    // Low stock thresholds — edit per your codes
+    // If a code isn't listed, defaults are used
+    const THRESHOLDS = {
+      // "AMD1": 100,
+      // "5DD11.25": 30,
+      "5DD9.5": 30,
+      "5CU4.5": 60,
+      "MICA11": 300
     };
 
-    function showStatus(msg, type, icon) {
-      const bar  = document.getElementById("statusBar");
-      const text = document.getElementById("statusText");
-      const ico  = document.getElementById("statusIcon");
-      text.textContent = msg;
-      ico.textContent  = icon;
-      bar.className    = "show " + type;
+    // ═══════════════════════════════════════════════════
+    // JSONP helper — bypasses CORS for Apps Script
+    // ═══════════════════════════════════════════════════
+    function jsonp(params) {
+      return new Promise((resolve, reject) => {
+        const cbName = "cb_" + Date.now() + "_" + Math.random().toString(36).slice(2);
+        const url    = API_URL + "?" + new URLSearchParams({ ...params, callback: cbName });
+        const script = document.createElement("script");
+        script.src   = url;
+
+        const cleanup = () => {
+          if (document.body.contains(script)) document.body.removeChild(script);
+          delete window[cbName];
+        };
+
+        const timer = setTimeout(() => {
+          cleanup();
+          reject(new Error("Request timed out"));
+        }, 30000);
+
+        window[cbName] = (data) => {
+          clearTimeout(timer);
+          cleanup();
+          resolve(data);
+        };
+
+        script.onerror = () => {
+          clearTimeout(timer);
+          cleanup();
+          reject(new Error("Network error — check API URL"));
+        };
+
+        document.body.appendChild(script);
+      });
+    }
+
+    // ═══════════════════════════════════════════════════
+    // STATUS BAR helper
+    // ═══════════════════════════════════════════════════
+    function showStatus(pageId, msg, type) {
+      const bar = document.getElementById(pageId + "-status");
+      bar.textContent = msg;
+      bar.className   = "status-bar show " + type;
       if (type !== "loading") {
-        setTimeout(() => { bar.className = ""; }, 5000);
+        setTimeout(() => { bar.className = "status-bar"; }, 5000);
       }
     }
 
-    function submitEntry(type) {
-      let date, code, qty;
+    function hideStatus(pageId) {
+      document.getElementById(pageId + "-status").className = "status-bar";
+    }
 
-      if (type === "production") {
-        date = document.getElementById("prodDate").value;
-        code = document.getElementById("prodCode").value.trim();
-        qty  = document.getElementById("prodQty").value.trim();
-      } else if (type === "purchase") {
-        date = document.getElementById("purchaseDate").value;
-        code = document.getElementById("purchaseCode").value.trim();
-        qty  = document.getElementById("purchaseQty").value.trim();
-      } else if (type === "dispatch") {
-        date = document.getElementById("dispatchDate").value;
-        code = document.getElementById("dispatchCode").value.trim();
-        qty  = document.getElementById("dispatchQty").value.trim();
+    // ═══════════════════════════════════════════════════
+    // NAVIGATION
+    // ═══════════════════════════════════════════════════
+    function showPage(name, btn) {
+      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+      document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+      document.getElementById("page-" + name).classList.add("active");
+      btn.classList.add("active");
+      if (name === "stock")  loadStock();
+      if (name === "ledger") loadLedger();
+    }
+
+    // ═══════════════════════════════════════════════════
+    // LOAD DROPDOWNS on page load
+    // ═══════════════════════════════════════════════════
+    async function loadDropdowns() {
+      try {
+        const data = await jsonp({ type: "getStock" });
+
+        // Fill product dropdowns (production + dispatch)
+        const prodOpts = data.products.map(p =>
+          `<option value="${p.ProductCode}">${p.ProductCode} — ${p.Name}</option>`
+        ).join("");
+        document.getElementById("prodCode").innerHTML = prodOpts || '<option value="">No products found</option>';
+        document.getElementById("dispCode").innerHTML = prodOpts || '<option value="">No products found</option>';
+
+        // Fill material dropdown (purchase)
+        const matOpts = data.materials.map(m =>
+          `<option value="${m.MaterialCode}">${m.MaterialCode} — ${m.Name}</option>`
+        ).join("");
+        document.getElementById("purchCode").innerHTML = matOpts || '<option value="">No materials found</option>';
+
+      } catch (err) {
+        document.getElementById("prodCode").innerHTML  = '<option value="">⚠ Load failed — type manually</option>';
+        document.getElementById("dispCode").innerHTML  = '<option value="">⚠ Load failed — type manually</option>';
+        document.getElementById("purchCode").innerHTML = '<option value="">⚠ Load failed — type manually</option>';
+
+        // Fallback: convert dropdowns to text inputs
+        ["prodCode","dispCode","purchCode"].forEach(id => {
+          const sel = document.getElementById(id);
+          const inp = document.createElement("input");
+          inp.type        = "text";
+          inp.id          = id;
+          inp.placeholder = "Enter code manually";
+          sel.parentNode.replaceChild(inp, sel);
+        });
       }
+    }
 
-      if (!date || !code || !qty) {
-        showStatus("Please fill in all fields before submitting.", "error", "⚠️");
+    // ═══════════════════════════════════════════════════
+    // SUBMIT ENTRY
+    // ═══════════════════════════════════════════════════
+    async function submitEntry(type) {
+      const map = {
+        production: { codeId: "prodCode",  qtyId: "prodQty",  btnId: "btn-prod",  label: "Submit Production Entry →" },
+        purchase:   { codeId: "purchCode", qtyId: "purchQty", btnId: "btn-purch", label: "Submit Purchase Entry →" },
+        dispatch:   { codeId: "dispCode",  qtyId: "dispQty",  btnId: "btn-disp",  label: "Submit Dispatch Entry →" }
+      };
+
+      const { codeId, qtyId, btnId, label } = map[type];
+      const code = document.getElementById(codeId).value.trim();
+      const qty  = document.getElementById(qtyId).value.trim();
+
+      if (!code || !qty || Number(qty) < 1) {
+        showStatus("entry", "⚠️  Please fill in all fields with valid values.", "error");
         return;
       }
 
-      showStatus("Submitting entry to Google Sheets...", "loading", "⏳");
+      const btn = document.getElementById(btnId);
+      btn.disabled     = true;
+      btn.textContent  = "Processing…";
+      showStatus("entry", "⏳  Submitting and processing entry…", "loading");
 
-      // ✅ JSONP method — bypasses CORS completely, works with Apps Script
-      const callbackName = "jsonp_cb_" + Date.now();
-      const url = `${API_URL}?type=${encodeURIComponent(type)}&code=${encodeURIComponent(code)}&qty=${encodeURIComponent(qty)}&date=${encodeURIComponent(date)}&callback=${callbackName}`;
+      try {
+        const res = await jsonp({ type, code, qty });
 
-      const script = document.createElement("script");
-      script.src = url;
-
-      // Called by Apps Script response: callbackName({ status: "success" })
-      window[callbackName] = function (response) {
-        document.body.removeChild(script);
-        delete window[callbackName];
-
-        if (response.status === "success") {
-          showStatus("Entry submitted! Google Sheet will update within 1 minute.", "success", "✅");
-          // Clear code and qty fields, keep date
-          if (type === "production") {
-            document.getElementById("prodCode").value = "";
-            document.getElementById("prodQty").value  = "";
-          } else if (type === "purchase") {
-            document.getElementById("purchaseCode").value = "";
-            document.getElementById("purchaseQty").value  = "";
-          } else {
-            document.getElementById("dispatchCode").value = "";
-            document.getElementById("dispatchQty").value  = "";
-          }
+        if (res.status === "success") {
+          showStatus("entry", "✅  Entry recorded and stock updated instantly!", "success");
+          document.getElementById(qtyId).value = "";
         } else {
-          showStatus("Error: " + (response.message || "Unknown error. Check your Apps Script."), "error", "❌");
+          showStatus("entry", "❌  Error: " + (res.message || "Unknown error. Check Apps Script logs."), "error");
         }
-      };
+      } catch (err) {
+        showStatus("entry", "❌  " + err.message, "error");
+      }
 
-      script.onerror = function () {
-        document.body.removeChild(script);
-        delete window[callbackName];
-        showStatus("Could not reach server. Check your API URL and redeploy Apps Script.", "error", "❌");
-      };
-
-      document.body.appendChild(script);
+      btn.disabled    = false;
+      btn.textContent = label;
     }
-  </script>
 
+    // ═══════════════════════════════════════════════════
+    // LOAD STOCK
+    // ═══════════════════════════════════════════════════
+    async function loadStock() {
+      document.getElementById("fg-tbody").innerHTML = '<tr class="loading-row"><td colspan="4">Loading…</td></tr>';
+      document.getElementById("rm-tbody").innerHTML = '<tr class="loading-row"><td colspan="4">Loading…</td></tr>';
+
+      try {
+        const data = await jsonp({ type: "getStock" });
+
+        function stockBadge(qty, threshold) {
+          qty = Number(qty);
+          if (qty <= 0)         return '<span class="badge badge-out">Out</span>';
+          if (qty <= threshold) return '<span class="badge badge-low">Low</span>';
+          return                       '<span class="badge badge-ok">OK</span>';
+        }
+
+        // Finished goods
+        if (data.products && data.products.length > 0) {
+          document.getElementById("fg-tbody").innerHTML = data.products.map(p => {
+            const t = THRESHOLDS[p.ProductCode] || THRESHOLDS._DEFAULT_FG;
+            return `<tr>
+              <td style="font-family:'IBM Plex Mono',monospace;font-size:12px">${p.ProductCode}</td>
+              <td>${p.Name}</td>
+              <td class="stock-qty">${Number(p.Stock).toLocaleString()}</td>
+              <td>${stockBadge(p.Stock, t)}</td>
+            </tr>`;
+          }).join("");
+        } else {
+          document.getElementById("fg-tbody").innerHTML = '<tr class="empty-row"><td colspan="4">No products found</td></tr>';
+        }
+
+        // Raw materials
+        if (data.materials && data.materials.length > 0) {
+          document.getElementById("rm-tbody").innerHTML = data.materials.map(m => {
+            const t = THRESHOLDS[m.MaterialCode] || THRESHOLDS._DEFAULT_RM;
+            return `<tr>
+              <td style="font-family:'IBM Plex Mono',monospace;font-size:12px">${m.MaterialCode}</td>
+              <td>${m.Name}</td>
+              <td class="stock-qty">${Number(m.Stock).toLocaleString()}</td>
+              <td>${stockBadge(m.Stock, t)}</td>
+            </tr>`;
+          }).join("");
+        } else {
+          document.getElementById("rm-tbody").innerHTML = '<tr class="empty-row"><td colspan="4">No materials found</td></tr>';
+        }
+
+      } catch (err) {
+        document.getElementById("fg-tbody").innerHTML = `<tr class="empty-row"><td colspan="4">❌ ${err.message}</td></tr>`;
+        document.getElementById("rm-tbody").innerHTML = `<tr class="empty-row"><td colspan="4">❌ ${err.message}</td></tr>`;
+      }
+    }
+
+    // ═══════════════════════════════════════════════════
+    // LOAD LEDGER
+    // ═══════════════════════════════════════════════════
+    async function loadLedger() {
+      document.getElementById("ledger-tbody").innerHTML = '<tr class="loading-row"><td colspan="5">Loading…</td></tr>';
+
+      try {
+        const entries = await jsonp({ type: "getLedger" });
+
+        if (!entries || entries.length === 0) {
+          document.getElementById("ledger-tbody").innerHTML = '<tr class="empty-row"><td colspan="5">No transactions found</td></tr>';
+          return;
+        }
+
+        document.getElementById("ledger-tbody").innerHTML = entries.map(e => {
+          const qty    = Number(e.Qty);
+          const qtyStr = (qty > 0 ? "+" : "") + qty.toLocaleString();
+          const qtyCls = qty >= 0 ? "qty-pos" : "qty-neg";
+
+          const typeLabel = (e.Type || "").toLowerCase().includes("raw") ? "Raw Mat." : "Product";
+          const typeCls   = (e.Type || "").toLowerCase().includes("raw") ? "chip-raw" : "chip-product";
+
+          // Format date nicely if it's a Date object serialized as string
+          let dateStr = e.Date;
+          try {
+            const d = new Date(e.Date);
+            if (!isNaN(d)) dateStr = d.toLocaleDateString("en-IN", { day:"2-digit", month:"short", year:"numeric" });
+          } catch(_) {}
+
+          return `<tr>
+            <td style="font-family:'IBM Plex Mono',monospace;font-size:12px;white-space:nowrap">${dateStr}</td>
+            <td style="font-family:'IBM Plex Mono',monospace;font-size:12px">${e.Code}</td>
+            <td><span class="type-chip ${typeCls}">${typeLabel}</span></td>
+            <td class="${qtyCls}">${qtyStr}</td>
+            <td style="color:var(--text-muted)">${e.Remark || "—"}</td>
+          </tr>`;
+        }).join("");
+
+      } catch (err) {
+        document.getElementById("ledger-tbody").innerHTML = `<tr class="empty-row"><td colspan="5">❌ ${err.message}</td></tr>`;
+      }
+    }
+
+    // ═══════════════════════════════════════════════════
+    // INIT
+    // ═══════════════════════════════════════════════════
+    window.onload = function () {
+      // Set today's date on all date fields
+      const today = new Date().toISOString().split("T")[0];
+      document.getElementById("prodDate").value = today;
+      document.getElementById("purchDate").value = today;
+      document.getElementById("dispDate").value = today;
+
+      // Load dropdowns
+      loadDropdowns();
+    };
+  </script>
 </body>
 </html>
