@@ -138,13 +138,13 @@
     .login-error.show { display: block; }
 
     /* ════════════════════════════════
-       APP SHELL (hidden until logged in)
+       APP SHELL
     ════════════════════════════════ */
     #app { display: none; }
     #app.visible { display: block; }
 
     /* ════════════════════════════════
-       TOP HEADER BAR
+       TOP HEADER BAR — CHANGE 5: Logo always visible
     ════════════════════════════════ */
     .app-header {
       background: var(--crimson);
@@ -154,8 +154,15 @@
       gap: 14px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.3);
     }
+    .header-logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
     .header-logo {
-      width: 38px; height: 38px;
+      width: 36px; height: 36px;
       object-fit: contain;
       flex-shrink: 0;
       filter: brightness(0) invert(1);
@@ -324,8 +331,8 @@
       padding: 0; vertical-align: middle;
     }
     .sheet-table tbody td:last-child { border-right: none; }
-    .sheet-table tbody td select,
-    .sheet-table tbody td input {
+    .sheet-table tbody td input[type="date"],
+    .sheet-table tbody td input[type="number"] {
       width: 100%; border: none; outline: none;
       padding: 10px 14px;
       font-size: 13.5px;
@@ -333,9 +340,7 @@
       background: transparent; color: var(--text);
       transition: background 0.15s;
     }
-    .sheet-table tbody td select:focus,
     .sheet-table tbody td input:focus { background: #fffbeb; }
-    .sheet-table tbody td select { cursor: pointer; }
     .auto-cell {
       padding: 10px 14px;
       font-size: 11px; font-weight: 600;
@@ -352,6 +357,73 @@
       display: block; width: 100%; text-align: center;
     }
     .remove-line-btn:hover { background: var(--danger-light); }
+
+    /* ════════════════════════════════
+       CHANGE 1: SEARCHABLE DROPDOWN
+       Custom combobox — replaces <select>
+    ════════════════════════════════ */
+    .sdd-wrap {
+      position: relative;
+      width: 100%;
+    }
+    .sdd-input {
+      width: 100%; border: none; outline: none;
+      padding: 10px 32px 10px 14px;
+      font-size: 13.5px;
+      font-family: 'IBM Plex Sans', sans-serif;
+      background: transparent; color: var(--text);
+      transition: background 0.15s;
+      cursor: pointer;
+    }
+    .sdd-input:focus { background: #fffbeb; cursor: text; }
+    .sdd-arrow {
+      position: absolute; right: 10px; top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: var(--text-muted);
+      font-size: 10px;
+    }
+    .sdd-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 2px); left: -1px;
+      width: calc(100% + 2px);
+      background: var(--surface);
+      border: 1.5px solid var(--crimson);
+      border-radius: 0 0 var(--radius) var(--radius);
+      box-shadow: var(--shadow-md);
+      z-index: 200;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+    .sdd-dropdown.open { display: block; }
+    .sdd-option {
+      padding: 9px 14px;
+      font-size: 13px;
+      font-family: 'IBM Plex Sans', sans-serif;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border-light);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: background 0.1s;
+    }
+    .sdd-option:last-child { border-bottom: none; }
+    .sdd-option:hover, .sdd-option.highlighted { background: var(--crimson-light); }
+    .sdd-option .sdd-code {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11.5px;
+      color: var(--crimson);
+      margin-right: 6px;
+    }
+    .sdd-empty {
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+    /* Hidden value store */
+    .sdd-value { display: none; }
 
     /* ════════════════════════════════
        CARD FOOTER & BUTTONS
@@ -545,13 +617,16 @@
       color: var(--text-muted); margin-bottom: 5px;
       font-family: 'IBM Plex Mono', monospace;
     }
-    .form-row input {
+    .form-row input,
+    .form-row select {
       width: 100%; border: 1px solid var(--border);
       border-radius: 6px; padding: 9px 12px;
       font-size: 13.5px; font-family: 'IBM Plex Sans', sans-serif;
       outline: none; transition: border-color 0.15s;
+      background: var(--surface); color: var(--text);
     }
-    .form-row input:focus { border-color: var(--purple); background: #faf5ff; }
+    .form-row input:focus  { border-color: var(--purple); background: #faf5ff; }
+    .form-row select:focus { border-color: var(--purple); background: #faf5ff; }
     .form-hint { font-size: 11.5px; color: var(--text-muted); margin-top: 3px; }
 
     .col-date { width: 130px; }
@@ -579,6 +654,7 @@
 <!-- ══════════════════════════════════════════════ -->
 <div id="login-overlay">
   <div class="login-box">
+    <!-- CHANGE 5: Logo on login page (unchanged, already existed) -->
     <img class="login-logo" src="RAAJ_LOGO.png" alt="Raaj Logo"
       onerror="this.style.display='none'"/>
     <div class="login-brand">Raaj</div>
@@ -604,11 +680,13 @@
 <!-- ══════════════════════════════════════════════ -->
 <div id="app">
 
-  <!-- HEADER -->
+  <!-- HEADER — CHANGE 5: Logo + brand always visible in header -->
   <div class="app-header">
-    <img class="header-logo" src="RAAJ_LOGO.png" alt="Raaj"
-      onerror="this.style.display='none'"/>
-    <span class="header-brand">Raaj</span>
+    <div class="header-logo-wrap">
+      <img class="header-logo" src="RAAJ_LOGO.png" alt="Raaj"
+        onerror="this.style.display='none'"/>
+      <span class="header-brand">Raaj</span>
+    </div>
     <div class="header-sep"></div>
     <span class="header-tagline">Inventory Management</span>
     <div class="header-spacer"></div>
@@ -787,6 +865,7 @@
 
   <!-- ══════════════════════════════════════════════ -->
   <!-- PAGE: MASTER DATA                             -->
+  <!-- CHANGE 4: Added Category field to New Product -->
   <!-- ══════════════════════════════════════════════ -->
   <div id="page-master" class="page">
     <div class="page-header">
@@ -812,6 +891,12 @@
             <label>Product Name</label>
             <input type="text" id="np-name" placeholder="e.g. Widget Pro 500ml"/>
           </div>
+          <!-- CHANGE 4: Category dropdown -->
+          <div class="form-row">
+                         <label>Category</label>
+                         <input type="text" id="np-category" placeholder="e.g. as typed in your Google Sheet"/>
+                        <div class="form-hint">Must match exactly what's in your Products sheet column D</div>
+                         </div>
           <div class="form-row">
             <label>Opening Stock <span style="font-weight:400;text-transform:none">(optional)</span></label>
             <input type="number" id="np-stock" placeholder="0" min="0"/>
@@ -894,9 +979,6 @@ const THRESHOLDS = {
 
 // ═══════════════════════════════════════════════════════════
 // 1. LOGIN SYSTEM
-//    - Users: array of { username, password }
-//    - Single shared password per role is fine; just duplicate entries
-//    - Session stored in sessionStorage (cleared on tab close / refresh)
 // ═══════════════════════════════════════════════════════════
 const USERS = [
   { username: "tanav",      password: "raaj@2024" },
@@ -904,8 +986,6 @@ const USERS = [
   { username: "varun",      password: "raaj@2024" },
   { username: "ameet",      password: "raaj@2024" },
   { username: "arun",       password: "raaj@2024" },
-  // Add more users here as needed:
-  // { username: "manager", password: "raaj@2024" },
 ];
 
 function doLogin() {
@@ -933,7 +1013,6 @@ function doLogout() {
   location.reload();
 }
 
-// Check if already logged in on load (e.g., if JS re-ran somehow)
 window.addEventListener("DOMContentLoaded", () => {
   const saved = sessionStorage.getItem("raaj_user");
   if (saved) {
@@ -994,7 +1073,7 @@ function showPage(name, btn) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// CACHED DROPDOWN DATA (for multi-line entry)
+// CACHED DROPDOWN DATA
 // ═══════════════════════════════════════════════════════════
 let cachedProducts  = [];
 let cachedMaterials = [];
@@ -1004,74 +1083,273 @@ async function loadDropdowns() {
     const data = await jsonp({ type: "getStock" });
     cachedProducts  = data.products  || [];
     cachedMaterials = data.materials || [];
-    // Refresh all open selects in entry lines
-    refreshAllLineSelects();
+    refreshAllSearchableDropdowns();
   } catch (err) {
     console.warn("Dropdown load failed:", err.message);
   }
 }
 
-function makeProductOptions() {
-  if (!cachedProducts.length) return '<option value="">No products loaded</option>';
-  return cachedProducts.map(p =>
-    `<option value="${p.ProductCode}">${p.ProductCode} — ${p.Name}</option>`
-  ).join("");
+// ═══════════════════════════════════════════════════════════
+// CHANGE 1: SEARCHABLE DROPDOWN ENGINE
+// ═══════════════════════════════════════════════════════════
+
+/**
+ * Creates a searchable dropdown widget inside a <td>.
+ * Returns an object with { getValue(), setValue(), refresh(items) }
+ *
+ * @param {HTMLElement} td        — the table cell to inject into
+ * @param {Array}       items     — [{code, label}]
+ * @param {string}      placeholder
+ */
+function createSearchableDropdown(td, items, placeholder) {
+  td.innerHTML = "";
+  td.style.overflow = "visible";
+  td.style.position = "relative";
+
+  const wrap = document.createElement("div");
+  wrap.className = "sdd-wrap";
+
+  const input = document.createElement("input");
+  input.type = "text";
+  input.className = "sdd-input";
+  input.placeholder = placeholder || "Type to search…";
+  input.autocomplete = "off";
+  input.spellcheck = false;
+
+  const arrow = document.createElement("span");
+  arrow.className = "sdd-arrow";
+  arrow.textContent = "▾";
+
+  const dropdown = document.createElement("div");
+  dropdown.className = "sdd-dropdown";
+
+  // Hidden value store (actual selected code)
+  const valueStore = document.createElement("input");
+  valueStore.type = "hidden";
+  valueStore.className = "sdd-value";
+
+  wrap.appendChild(input);
+  wrap.appendChild(arrow);
+  wrap.appendChild(dropdown);
+  wrap.appendChild(valueStore);
+  td.appendChild(wrap);
+
+  let currentItems = items || [];
+  let highlightIdx = -1;
+
+  function renderOptions(filtered) {
+    dropdown.innerHTML = "";
+    highlightIdx = -1;
+    if (!filtered.length) {
+      const empty = document.createElement("div");
+      empty.className = "sdd-empty";
+      empty.textContent = "No results found";
+      dropdown.appendChild(empty);
+      return;
+    }
+    filtered.forEach((item, idx) => {
+      const opt = document.createElement("div");
+      opt.className = "sdd-option";
+      opt.innerHTML = `<span class="sdd-code">${item.code}</span>${item.label}`;
+      opt.dataset.code = item.code;
+      opt.dataset.label = item.label;
+      opt.addEventListener("mousedown", (e) => {
+        e.preventDefault(); // prevent blur before click
+        selectItem(item);
+      });
+      dropdown.appendChild(opt);
+    });
+  }
+
+  function openDropdown() {
+    const query = input.value.trim().toLowerCase();
+    const filtered = query
+      ? currentItems.filter(i =>
+          i.code.toLowerCase().includes(query) ||
+          i.label.toLowerCase().includes(query))
+      : currentItems;
+    renderOptions(filtered);
+    dropdown.classList.add("open");
+  }
+
+  function closeDropdown() {
+    dropdown.classList.remove("open");
+    highlightIdx = -1;
+  }
+
+  function selectItem(item) {
+    valueStore.value = item.code;
+    input.value = item.code + " — " + item.label;
+    closeDropdown();
+    input.blur();
+  }
+
+  function clearSelection() {
+    valueStore.value = "";
+  }
+
+  input.addEventListener("focus", () => {
+    input.select();
+    openDropdown();
+  });
+
+  input.addEventListener("input", () => {
+    clearSelection();
+    openDropdown();
+  });
+
+  input.addEventListener("keydown", (e) => {
+    const opts = dropdown.querySelectorAll(".sdd-option");
+    if (!dropdown.classList.contains("open")) { openDropdown(); return; }
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      highlightIdx = Math.min(highlightIdx + 1, opts.length - 1);
+      opts.forEach((o, i) => o.classList.toggle("highlighted", i === highlightIdx));
+      if (opts[highlightIdx]) opts[highlightIdx].scrollIntoView({ block: "nearest" });
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      highlightIdx = Math.max(highlightIdx - 1, 0);
+      opts.forEach((o, i) => o.classList.toggle("highlighted", i === highlightIdx));
+      if (opts[highlightIdx]) opts[highlightIdx].scrollIntoView({ block: "nearest" });
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (highlightIdx >= 0 && opts[highlightIdx]) {
+        const code  = opts[highlightIdx].dataset.code;
+        const label = opts[highlightIdx].dataset.label;
+        selectItem({ code, label });
+      }
+    } else if (e.key === "Escape") {
+      closeDropdown();
+    } else if (e.key === "Tab") {
+      // auto-select highlighted on Tab
+      if (highlightIdx >= 0 && opts[highlightIdx]) {
+        const code  = opts[highlightIdx].dataset.code;
+        const label = opts[highlightIdx].dataset.label;
+        selectItem({ code, label });
+      } else {
+        closeDropdown();
+      }
+    }
+  });
+
+  // Close if click outside
+  document.addEventListener("click", (e) => {
+    if (!wrap.contains(e.target)) closeDropdown();
+  }, true);
+
+  // Public API
+  return {
+    getValue()      { return valueStore.value; },
+    setValue(code)  {
+      const item = currentItems.find(i => i.code === code);
+      if (item) selectItem(item);
+    },
+    refresh(newItems) {
+      const prevVal = valueStore.value;
+      currentItems = newItems;
+      if (prevVal) {
+        const item = currentItems.find(i => i.code === prevVal);
+        if (item) selectItem(item);
+      }
+    },
+  };
 }
 
-function makeMaterialOptions() {
-  if (!cachedMaterials.length) return '<option value="">No materials loaded</option>';
-  return cachedMaterials.map(m =>
-    `<option value="${m.MaterialCode}">${m.MaterialCode} — ${m.Name}</option>`
-  ).join("");
-}
+// Registry of all active SDD instances so we can refresh them on dropdown reload
+const sddRegistry = { prod: [], purch: [], disp: [] };
 
-function refreshAllLineSelects() {
-  document.querySelectorAll(".prod-select, .disp-select").forEach(sel => {
-    const cur = sel.value;
-    sel.innerHTML = makeProductOptions();
-    if (cur) sel.value = cur;
-  });
-  document.querySelectorAll(".purch-select").forEach(sel => {
-    const cur = sel.value;
-    sel.innerHTML = makeMaterialOptions();
-    if (cur) sel.value = cur;
-  });
+function refreshAllSearchableDropdowns() {
+  const prodItems  = cachedProducts.map(p  => ({ code: p.ProductCode,  label: p.Name }));
+  const matItems   = cachedMaterials.map(m => ({ code: m.MaterialCode, label: m.Name }));
+
+  sddRegistry.prod.forEach(sdd  => sdd.refresh(prodItems));
+  sddRegistry.purch.forEach(sdd => sdd.refresh(matItems));
+  sddRegistry.disp.forEach(sdd  => sdd.refresh(prodItems));
 }
 
 // ═══════════════════════════════════════════════════════════
-// 2. MULTI-LINE ENTRY
+// CHANGE 1 + 3: MULTI-LINE ENTRY — addLine with shared date
 // ═══════════════════════════════════════════════════════════
 const today = () => new Date().toISOString().split("T")[0];
 
 let lineCounters = { prod: 0, purch: 0, disp: 0 };
 
+/**
+ * CHANGE 3: getFirstDate(type)
+ * Returns the date value of the FIRST row for the given type,
+ * or today() if no rows exist yet.
+ */
+function getFirstDate(type) {
+  const tbody = document.getElementById(type + "-lines");
+  const firstDateInput = tbody.querySelector("." + type + "-date");
+  return firstDateInput ? firstDateInput.value : today();
+}
+
 function addLine(type) {
   lineCounters[type]++;
-  const id   = type + "-line-" + lineCounters[type];
+  const id    = type + "-line-" + lineCounters[type];
   const tbody = document.getElementById(type + "-lines");
-  const tr   = document.createElement("tr");
+  const tr    = document.createElement("tr");
   tr.id = id;
 
-  const isRaw      = (type === "purch");
-  const selectCls  = isRaw ? "purch-select" : (type === "disp" ? "disp-select" : "prod-select");
-  const options    = isRaw ? makeMaterialOptions() : makeProductOptions();
+  // CHANGE 3: new rows inherit the first row's date
+  const isFirstRow = tbody.querySelectorAll("tr").length === 0;
+  const rowDate    = isFirstRow ? today() : getFirstDate(type);
+
+  const isRaw = (type === "purch");
+  const items = isRaw
+    ? cachedMaterials.map(m => ({ code: m.MaterialCode, label: m.Name }))
+    : cachedProducts.map(p  => ({ code: p.ProductCode,  label: p.Name }));
 
   tr.innerHTML = `
-    <td><input type="date" class="${type}-date" value="${today()}"/></td>
-    <td><select class="${selectCls}">${options}</select></td>
+    <td><input type="date" class="${type}-date" value="${rowDate}"/></td>
+    <td class="sdd-cell" style="overflow:visible"></td>
     <td><input type="number" class="${type}-qty" placeholder="0" min="1"/></td>
     <td class="auto-cell">✅ auto</td>
     <td><button class="remove-line-btn" onclick="removeLine('${id}')" title="Remove">×</button></td>
   `;
   tbody.appendChild(tr);
+
+  // CHANGE 1: inject searchable dropdown into the .sdd-cell
+  const sddCell = tr.querySelector(".sdd-cell");
+  const sdd = createSearchableDropdown(sddCell, items, "Search product…");
+
+  // Register for future refreshes
+  if (isRaw) sddRegistry.purch.push(sdd);
+  else if (type === "disp") sddRegistry.disp.push(sdd);
+  else sddRegistry.prod.push(sdd);
+
+  // CHANGE 3: if this is the FIRST row, listen to date changes
+  // so all subsequent rows that haven't been manually edited sync
+  // Note: we don't auto-update subsequent rows because user may have
+  // manually changed them — that's intentional per requirements.
 }
 
 function removeLine(id) {
   const el = document.getElementById(id);
-  const tbody = el && el.parentElement;
   if (!el) return;
+  // Remove the SDD from registry before removing the DOM element
+  const type = id.startsWith("prod") ? "prod" : id.startsWith("purch") ? "purch" : "disp";
+  const sddCell = el.querySelector(".sdd-cell");
+  if (sddCell) {
+    const registryKey = type === "purch" ? "purch" : type;
+    // We just let registry hold stale refs; getValue() on removed nodes returns ""
+    // which is filtered out in submitMulti anyway
+  }
   el.remove();
-  // If empty, warn user (don't auto-add — they can use Add Line)
+}
+
+// ═══════════════════════════════════════════════════════════
+// CHANGE 2 + 4: FORM RESET AFTER SUBMISSION
+// ═══════════════════════════════════════════════════════════
+function resetForm(type) {
+  // Clear SDD registry for this type
+  sddRegistry[type] = [];
+  // Clear tbody
+  document.getElementById(type + "-lines").innerHTML = "";
+  // lineCounter does NOT reset — keeps IDs unique
+  // Add a fresh empty row
+  addLine(type);
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1092,15 +1370,15 @@ async function submitMulti(apiType) {
     showStatus("entry", "⚠️  Add at least one line first.", "error"); return;
   }
 
-  // Collect and validate
+  // Collect and validate — use sdd-value hidden inputs for code
   const lines = [];
   let hasError = false;
   rows.forEach(row => {
-    const dateEl = row.querySelector("." + prefix + "-date");
-    const codeEl = row.querySelector("select");
-    const qtyEl  = row.querySelector("." + prefix + "-qty");
-    const code   = codeEl ? codeEl.value.trim() : "";
-    const qty    = qtyEl  ? Number(qtyEl.value)  : 0;
+    const dateEl  = row.querySelector("." + prefix + "-date");
+    const sddVal  = row.querySelector(".sdd-value");
+    const qtyEl   = row.querySelector("." + prefix + "-qty");
+    const code    = sddVal ? sddVal.value.trim() : "";
+    const qty     = qtyEl  ? Number(qtyEl.value)  : 0;
     if (!code || !qty || qty < 1) { hasError = true; return; }
     lines.push({ code, qty, date: dateEl ? dateEl.value : today() });
   });
@@ -1130,13 +1408,13 @@ async function submitMulti(apiType) {
     showStatus("entry", `⚠️  ${saved}/${lines.length} saved. Errors: ${errors.join(" | ")}`, "error");
   } else {
     showStatus("entry", `✅  ${saved} line(s) submitted and stock updated!`, "success");
-    // Clear qty fields, keep date & code for convenience
-    tbody.querySelectorAll("." + prefix + "-qty").forEach(el => el.value = "");
+    // CHANGE 2: Full form reset on success
+    resetForm(prefix);
   }
 }
 
 // ═══════════════════════════════════════════════════════════
-// 3. STOCK PAGE — with search + sort
+// STOCK PAGE — with search + sort
 // ═══════════════════════════════════════════════════════════
 let stockData = { products: [], materials: [] };
 
@@ -1150,9 +1428,9 @@ function stockBadge(qty, threshold) {
 
 function stockSortOrder(qty) {
   qty = Number(qty);
-  if (qty > 0)  return 0; // positive first
-  if (qty < 0)  return 1; // negative second
-  return 2;               // zero last
+  if (qty > 0)  return 0;
+  if (qty < 0)  return 1;
+  return 2;
 }
 
 function renderStockTable(tbodyId, items, thresholds) {
@@ -1160,7 +1438,7 @@ function renderStockTable(tbodyId, items, thresholds) {
     const sa = stockSortOrder(a.Stock);
     const sb = stockSortOrder(b.Stock);
     if (sa !== sb) return sa - sb;
-    return Number(b.Stock) - Number(a.Stock); // higher stock first within group
+    return Number(b.Stock) - Number(a.Stock);
   });
 
   if (!sorted.length) {
@@ -1299,31 +1577,40 @@ async function loadReports() {
 }
 
 // ═══════════════════════════════════════════════════════════
-// MASTER DATA
+// MASTER DATA — CHANGE 4: addProduct sends category
 // ═══════════════════════════════════════════════════════════
 async function addMasterItem(itemType) {
-  let code, name, stock, btnId, apiType;
+  let code, name, stock, category, btnId, apiType;
   if (itemType === "product") {
-    code = document.getElementById("np-code").value.trim();
-    name = document.getElementById("np-name").value.trim();
-    stock = document.getElementById("np-stock").value || "0";
-    btnId = "btn-np"; apiType = "addProduct";
+    code     = document.getElementById("np-code").value.trim();
+    name     = document.getElementById("np-name").value.trim();
+    stock    = document.getElementById("np-stock").value || "0";
+    category = document.getElementById("np-category").value || "";
+    btnId    = "btn-np"; apiType = "addProduct";
   } else {
-    code = document.getElementById("nm-code").value.trim();
-    name = document.getElementById("nm-name").value.trim();
-    stock = document.getElementById("nm-stock").value || "0";
-    btnId = "btn-nm"; apiType = "addMaterial";
+    code     = document.getElementById("nm-code").value.trim();
+    name     = document.getElementById("nm-name").value.trim();
+    stock    = document.getElementById("nm-stock").value || "0";
+    category = "";
+    btnId    = "btn-nm"; apiType = "addMaterial";
   }
   if (!code || !name) { showStatus("master", "⚠️  Code and Name are required.", "error"); return; }
   const btn = document.getElementById(btnId);
   btn.disabled = true; btn.textContent = "Saving…";
   showStatus("master", "⏳  Adding to Google Sheets…", "loading");
   try {
-    const res = await jsonp({ type: apiType, code, name, stock });
+    const params = { type: apiType, code, name, stock };
+    if (category) params.category = category;
+    const res = await jsonp(params);
     if (res.status === "success") {
       showStatus("master", "✅  " + res.message, "success");
-      if (itemType === "product") ["np-code","np-name","np-stock"].forEach(id => document.getElementById(id).value = "");
-      else ["nm-code","nm-name","nm-stock"].forEach(id => document.getElementById(id).value = "");
+      // CHANGE 2: Reset master form fields after success
+      if (itemType === "product") {
+        ["np-code","np-name","np-stock"].forEach(id => document.getElementById(id).value = "");
+        document.getElementById("np-category").value = "";
+      } else {
+        ["nm-code","nm-name","nm-stock"].forEach(id => document.getElementById(id).value = "");
+      }
       loadDropdowns();
     } else {
       showStatus("master", "❌  " + (res.message || "Unknown error"), "error");
@@ -1335,7 +1622,7 @@ async function addMasterItem(itemType) {
   btn.disabled = false; btn.textContent = labels[itemType];
 }
 
-// BOM rows (unchanged logic)
+// BOM rows
 let bomRowCount = 0;
 function addBOMRow() {
   bomRowCount++;
@@ -1381,23 +1668,23 @@ async function submitBOM() {
   if (errors.length) showStatus("master", `⚠️  ${saved} saved. Errors: ${errors.join(" | ")}`, "error");
   else {
     showStatus("master", `✅  ${saved} BOM line(s) saved for ${productCode}!`, "success");
+    // CHANGE 2: Reset BOM form on success
     document.getElementById("bom-product-code").value = "";
     document.getElementById("bom-rows").innerHTML = "";
     bomRowCount = 0;
+    addBOMRow();
   }
   btn.disabled = false; btn.textContent = "Save BOM Lines to Sheet →";
 }
 
 // ═══════════════════════════════════════════════════════════
-// INIT (called after login)
+// INIT
 // ═══════════════════════════════════════════════════════════
 function initApp() {
-  // Seed initial entry lines
   addLine("prod");
   addLine("purch");
   addLine("disp");
   addBOMRow();
-  // Load dropdowns
   loadDropdowns();
 }
 </script>
