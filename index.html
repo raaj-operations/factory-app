@@ -13,7 +13,7 @@
       --crimson-light:#fee2e2;
       --gold:         #c9a84c;
       --gold-light:   #fef9e7;
-      --bg:           #f7f4f0;
+      --bg:           #f5f2ee;
       --surface:      #ffffff;
       --border:       #ddd8d0;
       --border-light: #edeae4;
@@ -34,7 +34,8 @@
       --purple-light: #ede9fe;
       --teal:         #0f766e;
       --teal-light:   #ccfbf1;
-      --radius:       8px;
+      --sidebar-w:    220px;
+      --radius:       10px;
       --shadow:       0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.05);
       --shadow-md:    0 4px 20px rgba(0,0,0,0.12);
     }
@@ -53,7 +54,7 @@
     ════════════════════════════════ */
     #login-overlay {
       position: fixed; inset: 0;
-      background: linear-gradient(145deg, #5c0000 0%, #8b0000 50%, #5c0000 100%);
+      background: linear-gradient(145deg, #3d0000 0%, #8b0000 55%, #5c0000 100%);
       display: flex; align-items: center; justify-content: center;
       z-index: 9999;
       transition: opacity 0.4s;
@@ -62,10 +63,10 @@
 
     .login-box {
       background: var(--surface);
-      border-radius: 12px;
+      border-radius: 14px;
       padding: 48px 40px 40px;
       width: 100%; max-width: 380px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      box-shadow: 0 24px 64px rgba(0,0,0,0.45);
       text-align: center;
     }
     .login-logo {
@@ -138,115 +139,208 @@
     .login-error.show { display: block; }
 
     /* ════════════════════════════════
-       APP SHELL
+       APP SHELL — SIDEBAR LAYOUT
     ════════════════════════════════ */
     #app { display: none; }
-    #app.visible { display: block; }
+    #app.visible { display: flex; min-height: 100vh; }
 
     /* ════════════════════════════════
-       TOP HEADER BAR — CHANGE 5: Logo always visible
+       SIDEBAR
     ════════════════════════════════ */
-    .app-header {
-      background: var(--crimson);
-      padding: 0 20px;
+    .sidebar {
+      width: var(--sidebar-w);
+      background: #1a0f0f;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 200;
+      transition: transform 0.25s ease;
+    }
+    .sidebar-brand {
       display: flex;
       align-items: center;
-      gap: 14px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      gap: 11px;
+      padding: 18px 18px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
     }
-    .header-logo-wrap {
+    .sidebar-logo {
+      width: 34px; height: 34px;
+      object-fit: contain;
+      filter: brightness(0) invert(1);
+      flex-shrink: 0;
+    }
+    .sidebar-brand-text {}
+    .sidebar-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px; font-weight: 700;
+      color: #fff; letter-spacing: 0.5px;
+      line-height: 1;
+    }
+    .sidebar-tagline {
+      font-size: 9.5px; font-weight: 500;
+      letter-spacing: 1.2px; text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      margin-top: 2px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 12px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      overflow-y: auto;
+    }
+    .nav-section-label {
+      font-size: 9px; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      color: rgba(255,255,255,0.25);
+      padding: 10px 8px 4px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .nav-btn {
       display: flex;
       align-items: center;
       gap: 10px;
-      text-decoration: none;
-      flex-shrink: 0;
-    }
-    .header-logo {
-      width: 36px; height: 36px;
-      object-fit: contain;
-      flex-shrink: 0;
-      filter: brightness(0) invert(1);
-      margin: 10px 0;
-    }
-    .header-brand {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 22px; font-weight: 700;
-      color: #fff;
-      letter-spacing: 0.5px;
-      white-space: nowrap;
-    }
-    .header-sep {
-      width: 1px; height: 22px;
-      background: rgba(255,255,255,0.25);
-      flex-shrink: 0;
-    }
-    .header-tagline {
-      font-size: 11px; font-weight: 500;
-      color: rgba(255,255,255,0.6);
-      letter-spacing: 0.3px;
-      white-space: nowrap;
-    }
-    .header-spacer { flex: 1; }
-    .logout-btn {
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.25);
-      border-radius: 6px;
-      color: rgba(255,255,255,0.85);
-      font-size: 12px; font-weight: 500;
-      font-family: 'IBM Plex Sans', sans-serif;
-      padding: 5px 12px;
-      cursor: pointer;
-      transition: background 0.15s;
-      white-space: nowrap;
-    }
-    .logout-btn:hover { background: rgba(255,255,255,0.22); }
-    .user-chip {
-      font-size: 11.5px;
-      color: rgba(255,255,255,0.7);
-      white-space: nowrap;
-    }
-
-    /* ════════════════════════════════
-       NAV
-    ════════════════════════════════ */
-    nav {
-      background: #1a1410;
-      padding: 0 20px;
-      display: flex;
-      align-items: center;
-      gap: 2px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-      flex-wrap: wrap;
-    }
-    nav button {
       background: none;
       border: none;
-      color: #94897e;
+      border-radius: 7px;
+      color: rgba(255,255,255,0.55);
       cursor: pointer;
-      padding: 16px 13px;
+      padding: 9px 12px;
       font-size: 13px;
       font-family: 'IBM Plex Sans', sans-serif;
       font-weight: 500;
-      border-bottom: 2px solid transparent;
-      transition: color 0.15s, border-color 0.15s;
-      white-space: nowrap;
+      text-align: left;
+      width: 100%;
+      transition: background 0.15s, color 0.15s;
     }
-    nav button:hover { color: #e2d8d0; }
-    nav button.active { color: #fff; border-bottom-color: var(--gold); }
+    .nav-btn .nav-icon {
+      font-size: 15px;
+      width: 20px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.85); }
+    .nav-btn.active {
+      background: var(--crimson);
+      color: #fff;
+    }
+    .nav-btn.active:hover { background: var(--crimson-mid); }
+
+    /* sub-nav inside Reports */
+    .sub-nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: none;
+      border: none;
+      border-radius: 6px;
+      color: rgba(255,255,255,0.45);
+      cursor: pointer;
+      padding: 7px 12px 7px 42px;
+      font-size: 12px;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-weight: 500;
+      text-align: left;
+      width: 100%;
+      transition: background 0.15s, color 0.15s;
+    }
+    .sub-nav-btn:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.75); }
+    .sub-nav-btn.active { color: var(--gold); }
+
+    .sidebar-footer {
+      padding: 14px 10px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .sidebar-user {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 12px 8px;
+    }
+    .user-avatar {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--crimson);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: #fff;
+      flex-shrink: 0;
+    }
+    .user-name {
+      font-size: 12.5px; font-weight: 500;
+      color: rgba(255,255,255,0.7);
+      flex: 1;
+    }
+    .logout-btn {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 6px;
+      color: rgba(255,255,255,0.6);
+      font-size: 11px; font-weight: 500;
+      font-family: 'IBM Plex Sans', sans-serif;
+      padding: 5px 10px;
+      cursor: pointer;
+      transition: background 0.15s;
+      width: 100%;
+      margin-top: 4px;
+    }
+    .logout-btn:hover { background: rgba(255,255,255,0.15); color: #fff; }
+
+    /* ════════════════════════════════
+       MAIN CONTENT
+    ════════════════════════════════ */
+    .main-content {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    /* ════════════════════════════════
+       TOP HEADER BAR
+    ════════════════════════════════ */
+    .app-topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .topbar-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px; font-weight: 600;
+      color: var(--crimson-dark);
+      flex: 1;
+    }
+    .topbar-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .hamburger-btn {
+      display: none;
+      background: none; border: none;
+      cursor: pointer; padding: 4px;
+      color: var(--text); font-size: 20px;
+    }
 
     /* ════════════════════════════════
        PAGES
     ════════════════════════════════ */
-    .page { display: none; padding: 24px 16px 60px; max-width: 960px; margin: 0 auto; }
+    .page { display: none; padding: 24px 24px 60px; max-width: 1040px; }
     .page.active { display: block; }
 
-    .page-header { margin-bottom: 20px; }
+    .page-header { margin-bottom: 22px; }
     .page-header h1 {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 26px; font-weight: 600;
+      font-size: 24px; font-weight: 600;
       color: var(--crimson-dark);
     }
     .page-header p { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
@@ -288,7 +382,7 @@
       display: flex; align-items: center; justify-content: space-between;
       padding: 13px 20px;
       border-bottom: 1px solid var(--border-light);
-      flex-wrap: wrap; gap: 8px;
+      flex-wrap: wrap; gap: 10px;
     }
     .card-header-row h2 { font-size: 14px; font-weight: 600; }
 
@@ -359,13 +453,9 @@
     .remove-line-btn:hover { background: var(--danger-light); }
 
     /* ════════════════════════════════
-       CHANGE 1: SEARCHABLE DROPDOWN
-       Custom combobox — replaces <select>
+       SEARCHABLE DROPDOWN
     ════════════════════════════════ */
-    .sdd-wrap {
-      position: relative;
-      width: 100%;
-    }
+    .sdd-wrap { position: relative; width: 100%; }
     .sdd-input {
       width: 100%; border: none; outline: none;
       padding: 10px 32px 10px 14px;
@@ -380,8 +470,7 @@
       position: absolute; right: 10px; top: 50%;
       transform: translateY(-50%);
       pointer-events: none;
-      color: var(--text-muted);
-      font-size: 10px;
+      color: var(--text-muted); font-size: 10px;
     }
     .sdd-dropdown {
       display: none;
@@ -398,31 +487,20 @@
     }
     .sdd-dropdown.open { display: block; }
     .sdd-option {
-      padding: 9px 14px;
-      font-size: 13px;
+      padding: 9px 14px; font-size: 13px;
       font-family: 'IBM Plex Sans', sans-serif;
       cursor: pointer;
       border-bottom: 1px solid var(--border-light);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       transition: background 0.1s;
     }
     .sdd-option:last-child { border-bottom: none; }
     .sdd-option:hover, .sdd-option.highlighted { background: var(--crimson-light); }
     .sdd-option .sdd-code {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11.5px;
-      color: var(--crimson);
-      margin-right: 6px;
+      font-family: 'IBM Plex Mono', monospace; font-size: 11.5px;
+      color: var(--crimson); margin-right: 6px;
     }
-    .sdd-empty {
-      padding: 10px 14px;
-      font-size: 13px;
-      color: var(--text-muted);
-      font-style: italic;
-    }
-    /* Hidden value store */
+    .sdd-empty { padding: 10px 14px; font-size: 13px; color: var(--text-muted); font-style: italic; }
     .sdd-value { display: none; }
 
     /* ════════════════════════════════
@@ -449,25 +527,18 @@
     .add-line-btn {
       background: none;
       border: 1.5px dashed var(--border);
-      border-radius: 6px;
-      padding: 9px 16px;
+      border-radius: 6px; padding: 9px 16px;
       font-size: 12.5px; font-weight: 600;
-      color: var(--text-muted);
-      cursor: pointer;
+      color: var(--text-muted); cursor: pointer;
       font-family: 'IBM Plex Sans', sans-serif;
-      transition: all 0.15s;
-      white-space: nowrap;
+      transition: all 0.15s; white-space: nowrap;
     }
-    .add-line-btn:hover {
-      border-color: var(--crimson);
-      color: var(--crimson);
-      background: var(--crimson-light);
-    }
-    .btn-prod   { background: var(--prod); }
-    .btn-purch  { background: var(--purch); }
-    .btn-disp   { background: var(--disp); }
-    .btn-purple { background: var(--purple); }
-    .btn-teal   { background: var(--teal); }
+    .add-line-btn:hover { border-color: var(--crimson); color: var(--crimson); background: var(--crimson-light); }
+    .btn-prod    { background: var(--prod); }
+    .btn-purch   { background: var(--purch); }
+    .btn-disp    { background: var(--disp); }
+    .btn-purple  { background: var(--purple); }
+    .btn-teal    { background: var(--teal); }
     .btn-crimson { background: var(--crimson); }
 
     /* ════════════════════════════════
@@ -488,25 +559,34 @@
     .data-table tbody tr:hover td { background: #faf8f5; }
 
     /* ════════════════════════════════
-       SEARCH INPUT
+       SEARCH + FILTER ROW
     ════════════════════════════════ */
+    .filter-row {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    }
     .search-input {
       border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 6px 12px;
+      border-radius: 6px; padding: 6px 12px;
       font-size: 13px;
       font-family: 'IBM Plex Sans', sans-serif;
-      outline: none;
-      width: 180px;
+      outline: none; width: 160px;
       transition: border-color 0.15s, box-shadow 0.15s;
-      color: var(--text);
-      background: var(--surface);
+      color: var(--text); background: var(--surface);
     }
-    .search-input:focus {
-      border-color: var(--crimson);
-      box-shadow: 0 0 0 2px rgba(139,0,0,0.1);
-    }
+    .search-input:focus { border-color: var(--crimson); box-shadow: 0 0 0 2px rgba(139,0,0,0.1); }
     .search-input::placeholder { color: var(--text-muted); }
+
+    .filter-select {
+      border: 1px solid var(--border);
+      border-radius: 6px; padding: 6px 10px;
+      font-size: 12.5px;
+      font-family: 'IBM Plex Sans', sans-serif;
+      outline: none; max-width: 150px;
+      transition: border-color 0.15s;
+      color: var(--text); background: var(--surface);
+      cursor: pointer;
+    }
+    .filter-select:focus { border-color: var(--crimson); }
 
     /* ════════════════════════════════
        BADGES
@@ -532,7 +612,7 @@
        STOCK GRID
     ════════════════════════════════ */
     .stock-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    @media(max-width: 640px) { .stock-grid { grid-template-columns: 1fr; } }
+    @media(max-width: 700px) { .stock-grid { grid-template-columns: 1fr; } }
 
     /* ════════════════════════════════
        REFRESH BTN
@@ -548,8 +628,30 @@
     .refresh-btn:hover { background: var(--border-light); }
 
     /* ════════════════════════════════
-       REPORTS
+       REPORTS — SUB-TABS
     ════════════════════════════════ */
+    .report-tabs {
+      display: flex; gap: 0;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .report-tab-btn {
+      background: none; border: none;
+      padding: 10px 18px;
+      font-size: 13px; font-weight: 500;
+      font-family: 'IBM Plex Sans', sans-serif;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .report-tab-btn:hover { color: var(--crimson); }
+    .report-tab-btn.active { color: var(--crimson); border-bottom-color: var(--crimson); font-weight: 600; }
+
+    .report-panel { display: none; }
+    .report-panel.active { display: block; }
+
     .month-section { margin-bottom: 24px; }
     .month-label {
       font-size: 12px; font-weight: 700; letter-spacing: 0.8px;
@@ -561,10 +663,62 @@
     .report-total-row td { font-weight: 700; background: #faf8f5; border-top: 2px solid var(--border); font-size: 13px; }
 
     /* ════════════════════════════════
+       CATEGORY REPORT CARDS
+    ════════════════════════════════ */
+    .cat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .cat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .cat-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--crimson);
+    }
+    .cat-card-name {
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 0.8px; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 14px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .cat-stat-row {
+      display: flex; align-items: baseline; gap: 6px;
+      margin-bottom: 6px;
+    }
+    .cat-stat-val {
+      font-size: 22px; font-weight: 700;
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--text);
+      line-height: 1;
+    }
+    .cat-stat-label {
+      font-size: 11px; color: var(--text-muted); font-weight: 500;
+    }
+    .cat-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+    .cat-pill {
+      font-size: 11px; font-weight: 600;
+      padding: 3px 10px; border-radius: 99px;
+    }
+    .cat-pill-total  { background: var(--crimson-light); color: var(--crimson); }
+    .cat-pill-low    { background: var(--warn-light);    color: var(--warn); }
+    .cat-pill-out    { background: var(--danger-light);  color: var(--danger); }
+
+    /* ════════════════════════════════
        MASTER DATA
     ════════════════════════════════ */
     .master-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    @media(max-width: 640px) { .master-grid { grid-template-columns: 1fr; } }
+    @media(max-width: 700px) { .master-grid { grid-template-columns: 1fr; } }
 
     .bom-row-list { padding: 0; }
     .bom-row-item {
@@ -575,7 +729,7 @@
       border-bottom: 1px solid var(--border-light);
     }
     .bom-row-item:last-child { border-bottom: none; }
-    .bom-row-item input, .bom-row-item select {
+    .bom-row-item input {
       border: 1px solid var(--border); border-radius: 5px;
       padding: 7px 10px; font-size: 13px;
       font-family: 'IBM Plex Sans', sans-serif;
@@ -637,29 +791,44 @@
     /* ════════════════════════════════
        MOBILE
     ════════════════════════════════ */
-    @media(max-width: 600px) {
-      .app-header { gap: 8px; }
-      .header-tagline { display: none; }
-      .header-sep { display: none; }
-      .login-box { padding: 36px 24px 32px; }
+    @media(max-width: 768px) {
+      :root { --sidebar-w: 0px; }
+      .sidebar {
+        transform: translateX(-220px);
+        width: 220px;
+      }
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      .main-content { margin-left: 0; }
+      .hamburger-btn { display: flex; align-items: center; justify-content: center; }
+      .page { padding: 16px 16px 60px; }
       .col-date { width: 100px; }
       .col-qty  { width: 80px; }
+      .cat-grid { grid-template-columns: 1fr 1fr; }
+      .sidebar-overlay {
+        display: none;
+        position: fixed; inset: 0;
+        background: rgba(0,0,0,0.45);
+        z-index: 199;
+      }
+      .sidebar-overlay.show { display: block; }
+    }
+    @media(max-width: 480px) {
+      .cat-grid { grid-template-columns: 1fr; }
+      .master-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════════ -->
-<!-- LOGIN OVERLAY                                 -->
-<!-- ══════════════════════════════════════════════ -->
+<!-- LOGIN OVERLAY -->
 <div id="login-overlay">
   <div class="login-box">
-    <!-- CHANGE 5: Logo on login page (unchanged, already existed) -->
     <img class="login-logo" src="RAAJ_LOGO.png" alt="Raaj Logo"
       onerror="this.style.display='none'"/>
     <div class="login-brand">Raaj</div>
     <div class="login-sub">Inventory Management System</div>
-
     <div class="login-field">
       <label>Username</label>
       <input type="text" id="login-user" placeholder="Enter username" autocomplete="username"
@@ -675,294 +844,348 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════ -->
-<!-- APP                                           -->
-<!-- ══════════════════════════════════════════════ -->
+<!-- MOBILE SIDEBAR OVERLAY -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- APP -->
 <div id="app">
 
-  <!-- HEADER — CHANGE 5: Logo + brand always visible in header -->
-  <div class="app-header">
-    <div class="header-logo-wrap">
-      <img class="header-logo" src="RAAJ_LOGO.png" alt="Raaj"
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <img class="sidebar-logo" src="RAAJ_LOGO.png" alt="Raaj"
         onerror="this.style.display='none'"/>
-      <span class="header-brand">Raaj</span>
-    </div>
-    <div class="header-sep"></div>
-    <span class="header-tagline">Inventory Management</span>
-    <div class="header-spacer"></div>
-    <span class="user-chip" id="header-username"></span>
-    <button class="logout-btn" onclick="doLogout()">Logout</button>
-  </div>
-
-  <!-- NAV -->
-  <nav>
-    <button class="active" onclick="showPage('entry',this)">Entry</button>
-    <button onclick="showPage('stock',this)">Stock</button>
-    <button onclick="showPage('ledger',this)">Ledger</button>
-    <button onclick="showPage('reports',this)">Reports</button>
-    <button onclick="showPage('master',this)">Master Data</button>
-  </nav>
-
-  <!-- ══════════════════════════════════════════════ -->
-  <!-- PAGE: ENTRY                                   -->
-  <!-- ══════════════════════════════════════════════ -->
-  <div id="page-entry" class="page active">
-    <div class="page-header">
-      <h1>Record Entry</h1>
-      <p>Add multiple lines per submission — all processed together</p>
-    </div>
-    <div id="entry-status" class="status-bar"></div>
-
-    <!-- Production -->
-    <div class="card prod-accent">
-      <div class="card-header">
-        <span class="accent-badge">Production</span>
-        <h2>⚙️ Finished Goods Entry</h2>
-      </div>
-      <table class="sheet-table">
-        <thead><tr>
-          <th class="col-date">Date</th>
-          <th>Product</th>
-          <th class="col-qty">Quantity</th>
-          <th class="col-auto">Auto</th>
-          <th class="col-del"></th>
-        </tr></thead>
-        <tbody id="prod-lines"></tbody>
-      </table>
-      <div class="card-footer">
-        <button class="add-line-btn" onclick="addLine('prod')">＋ Add Line</button>
-        <button class="submit-btn btn-prod" id="btn-prod" onclick="submitMulti('production')">Submit Production →</button>
+      <div class="sidebar-brand-text">
+        <div class="sidebar-name">Raaj</div>
+        <div class="sidebar-tagline">Inventory System</div>
       </div>
     </div>
 
-    <!-- Purchase -->
-    <div class="card purch-accent">
-      <div class="card-header">
-        <span class="accent-badge">Purchase</span>
-        <h2>📦 Raw Material Purchase</h2>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Operations</div>
+      <button class="nav-btn active" id="nav-entry" onclick="showPage('entry',this)">
+        <span class="nav-icon">✏️</span> Entry
+      </button>
+      <button class="nav-btn" id="nav-stock" onclick="showPage('stock',this)">
+        <span class="nav-icon">📊</span> Stock
+      </button>
+      <button class="nav-btn" id="nav-ledger" onclick="showPage('ledger',this)">
+        <span class="nav-icon">📋</span> Ledger
+      </button>
+
+      <div class="nav-section-label" style="margin-top:6px;">Reports</div>
+      <button class="nav-btn" id="nav-reports" onclick="showPage('reports',this)">
+        <span class="nav-icon">📈</span> Reports
+      </button>
+
+      <div class="nav-section-label" style="margin-top:6px;">Configuration</div>
+      <button class="nav-btn" id="nav-master" onclick="showPage('master',this)">
+        <span class="nav-icon">⚙️</span> Master Data
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" id="user-avatar">?</div>
+        <div class="user-name" id="header-username">—</div>
       </div>
-      <table class="sheet-table">
-        <thead><tr>
-          <th class="col-date">Date</th>
-          <th>Material</th>
-          <th class="col-qty">Quantity</th>
-          <th class="col-auto">Auto</th>
-          <th class="col-del"></th>
-        </tr></thead>
-        <tbody id="purch-lines"></tbody>
-      </table>
-      <div class="card-footer">
-        <button class="add-line-btn" onclick="addLine('purch')">＋ Add Line</button>
-        <button class="submit-btn btn-purch" id="btn-purch" onclick="submitMulti('purchase')">Submit Purchase →</button>
+      <button class="logout-btn" onclick="doLogout()">↩ Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+
+    <!-- TOP BAR -->
+    <div class="app-topbar">
+      <button class="hamburger-btn" onclick="toggleSidebar()">☰</button>
+      <div class="topbar-title" id="topbar-title">Record Entry</div>
+      <div class="topbar-subtitle" id="topbar-subtitle">Operations</div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- PAGE: ENTRY                                   -->
+    <!-- ══════════════════════════════════════════════ -->
+    <div id="page-entry" class="page active">
+      <div class="page-header">
+        <h1>Record Entry</h1>
+        <p>Add multiple lines per submission — all processed together</p>
+      </div>
+      <div id="entry-status" class="status-bar"></div>
+
+      <!-- Production -->
+      <div class="card prod-accent">
+        <div class="card-header">
+          <span class="accent-badge">Production</span>
+          <h2>⚙️ Finished Goods Entry</h2>
+        </div>
+        <table class="sheet-table">
+          <thead><tr>
+            <th class="col-date">Date</th>
+            <th>Product</th>
+            <th class="col-qty">Quantity</th>
+            <th class="col-auto">Auto</th>
+            <th class="col-del"></th>
+          </tr></thead>
+          <tbody id="prod-lines"></tbody>
+        </table>
+        <div class="card-footer">
+          <button class="add-line-btn" onclick="addLine('prod')">＋ Add Line</button>
+          <button class="submit-btn btn-prod" id="btn-prod" onclick="submitMulti('production')">Submit Production →</button>
+        </div>
+      </div>
+
+      <!-- Purchase -->
+      <div class="card purch-accent">
+        <div class="card-header">
+          <span class="accent-badge">Purchase</span>
+          <h2>📦 Raw Material Purchase</h2>
+        </div>
+        <table class="sheet-table">
+          <thead><tr>
+            <th class="col-date">Date</th>
+            <th>Material</th>
+            <th class="col-qty">Quantity</th>
+            <th class="col-auto">Auto</th>
+            <th class="col-del"></th>
+          </tr></thead>
+          <tbody id="purch-lines"></tbody>
+        </table>
+        <div class="card-footer">
+          <button class="add-line-btn" onclick="addLine('purch')">＋ Add Line</button>
+          <button class="submit-btn btn-purch" id="btn-purch" onclick="submitMulti('purchase')">Submit Purchase →</button>
+        </div>
+      </div>
+
+      <!-- Dispatch -->
+      <div class="card disp-accent">
+        <div class="card-header">
+          <span class="accent-badge">Dispatch</span>
+          <h2>🚚 Dispatch Entry</h2>
+        </div>
+        <table class="sheet-table">
+          <thead><tr>
+            <th class="col-date">Date</th>
+            <th>Product</th>
+            <th class="col-qty">Quantity</th>
+            <th class="col-auto">Auto</th>
+            <th class="col-del"></th>
+          </tr></thead>
+          <tbody id="disp-lines"></tbody>
+        </table>
+        <div class="card-footer">
+          <button class="add-line-btn" onclick="addLine('disp')">＋ Add Line</button>
+          <button class="submit-btn btn-disp" id="btn-disp" onclick="submitMulti('dispatch')">Submit Dispatch →</button>
+        </div>
       </div>
     </div>
 
-    <!-- Dispatch -->
-    <div class="card disp-accent">
-      <div class="card-header">
-        <span class="accent-badge">Dispatch</span>
-        <h2>🚚 Dispatch Entry</h2>
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- PAGE: STOCK                                   -->
+    <!-- ══════════════════════════════════════════════ -->
+    <div id="page-stock" class="page">
+      <div class="page-header">
+        <h1>Current Stock</h1>
+        <p>Live view — sorted by stock status, filterable by category</p>
       </div>
-      <table class="sheet-table">
-        <thead><tr>
-          <th class="col-date">Date</th>
-          <th>Product</th>
-          <th class="col-qty">Quantity</th>
-          <th class="col-auto">Auto</th>
-          <th class="col-del"></th>
-        </tr></thead>
-        <tbody id="disp-lines"></tbody>
-      </table>
-      <div class="card-footer">
-        <button class="add-line-btn" onclick="addLine('disp')">＋ Add Line</button>
-        <button class="submit-btn btn-disp" id="btn-disp" onclick="submitMulti('dispatch')">Submit Dispatch →</button>
+      <div id="stock-status" class="status-bar"></div>
+      <div class="stock-grid">
+
+        <div class="card">
+          <div class="card-header-row">
+            <h2>⚙️ Finished Goods</h2>
+            <div class="filter-row">
+              <input class="search-input" id="fg-search" placeholder="🔍 Search…"
+                oninput="filterStock('fg')" />
+              <select class="filter-select" id="fg-cat-filter" onchange="filterStock('fg')">
+                <option value="">All Categories</option>
+              </select>
+              <button class="refresh-btn" onclick="loadStock()">↻</button>
+            </div>
+          </div>
+          <table class="data-table">
+            <thead><tr><th>Code</th><th>Name</th><th>Stock</th><th>Status</th></tr></thead>
+            <tbody id="fg-tbody"><tr class="loading-row"><td colspan="4">Loading…</td></tr></tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-header-row">
+            <h2>📦 Raw Materials</h2>
+            <div class="filter-row">
+              <input class="search-input" id="rm-search" placeholder="🔍 Search…"
+                oninput="filterStock('rm')" />
+              <button class="refresh-btn" onclick="loadStock()">↻</button>
+            </div>
+          </div>
+          <table class="data-table">
+            <thead><tr><th>Code</th><th>Name</th><th>Stock</th><th>Status</th></tr></thead>
+            <tbody id="rm-tbody"><tr class="loading-row"><td colspan="4">Loading…</td></tr></tbody>
+          </table>
+        </div>
+
       </div>
     </div>
-  </div>
 
-  <!-- ══════════════════════════════════════════════ -->
-  <!-- PAGE: STOCK                                   -->
-  <!-- ══════════════════════════════════════════════ -->
-  <div id="page-stock" class="page">
-    <div class="page-header">
-      <h1>Current Stock</h1>
-      <p>Live view — sorted by stock status, search-filtered</p>
-    </div>
-    <div id="stock-status" class="status-bar"></div>
-    <div class="stock-grid">
-
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- PAGE: LEDGER                                  -->
+    <!-- ══════════════════════════════════════════════ -->
+    <div id="page-ledger" class="page">
+      <div class="page-header">
+        <h1>Stock Ledger</h1>
+        <p>Last 20 transactions — newest first</p>
+      </div>
+      <div id="ledger-status" class="status-bar"></div>
       <div class="card">
         <div class="card-header-row">
-          <h2>⚙️ Finished Goods</h2>
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-            <input class="search-input" id="fg-search" placeholder="🔍 Search…"
-              oninput="filterStock('fg')" />
-            <button class="refresh-btn" onclick="loadStock()">↻ Refresh</button>
-          </div>
+          <h2>📋 Transaction History</h2>
+          <button class="refresh-btn" onclick="loadLedger()">↻ Refresh</button>
         </div>
         <table class="data-table">
-          <thead><tr><th>Code</th><th>Name</th><th>Stock</th><th>Status</th></tr></thead>
-          <tbody id="fg-tbody"><tr class="loading-row"><td colspan="4">Loading…</td></tr></tbody>
+          <thead><tr><th>Date</th><th>Code</th><th>Type</th><th>Qty</th><th>Remark</th></tr></thead>
+          <tbody id="ledger-tbody"><tr class="loading-row"><td colspan="5">Loading…</td></tr></tbody>
         </table>
       </div>
+    </div>
 
-      <div class="card">
-        <div class="card-header-row">
-          <h2>📦 Raw Materials</h2>
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-            <input class="search-input" id="rm-search" placeholder="🔍 Search…"
-              oninput="filterStock('rm')" />
-            <button class="refresh-btn" onclick="loadStock()">↻ Refresh</button>
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- PAGE: REPORTS                                 -->
+    <!-- ══════════════════════════════════════════════ -->
+    <div id="page-reports" class="page">
+      <div class="page-header">
+        <h1>Reports</h1>
+        <p>Monthly analysis and category-wise stock overview</p>
+      </div>
+      <div id="reports-status" class="status-bar"></div>
+
+      <!-- Sub-tabs -->
+      <div class="report-tabs">
+        <button class="report-tab-btn active" id="rtab-monthly" onclick="switchReportTab('monthly')">📅 Monthly Analysis</button>
+        <button class="report-tab-btn" id="rtab-category" onclick="switchReportTab('category')">🏷️ Category Wise Stock</button>
+      </div>
+
+      <!-- Monthly Panel -->
+      <div class="report-panel active" id="rpanel-monthly">
+        <div id="reports-container">
+          <div class="card">
+            <div class="loading-row" style="padding:26px;text-align:center;color:var(--text-muted);font-size:13px">
+              Load the Reports tab to fetch data
+            </div>
           </div>
         </div>
-        <table class="data-table">
-          <thead><tr><th>Code</th><th>Name</th><th>Stock</th><th>Status</th></tr></thead>
-          <tbody id="rm-tbody"><tr class="loading-row"><td colspan="4">Loading…</td></tr></tbody>
-        </table>
       </div>
 
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════════════════════ -->
-  <!-- PAGE: LEDGER                                  -->
-  <!-- ══════════════════════════════════════════════ -->
-  <div id="page-ledger" class="page">
-    <div class="page-header">
-      <h1>Stock Ledger</h1>
-      <p>Last 20 transactions — newest first</p>
-    </div>
-    <div id="ledger-status" class="status-bar"></div>
-    <div class="card">
-      <div class="card-header-row">
-        <h2>📋 Transaction History</h2>
-        <button class="refresh-btn" onclick="loadLedger()">↻ Refresh</button>
-      </div>
-      <table class="data-table">
-        <thead><tr><th>Date</th><th>Code</th><th>Type</th><th>Qty</th><th>Remark</th></tr></thead>
-        <tbody id="ledger-tbody"><tr class="loading-row"><td colspan="5">Loading…</td></tr></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════════════════════ -->
-  <!-- PAGE: REPORTS                                 -->
-  <!-- ══════════════════════════════════════════════ -->
-  <div id="page-reports" class="page">
-    <div class="page-header">
-      <h1>Monthly Reports</h1>
-      <p>Production vs dispatch summary — last 6 months, product-wise</p>
-    </div>
-    <div id="reports-status" class="status-bar"></div>
-    <div id="reports-container">
-      <div class="card">
-        <div class="loading-row" style="padding:26px;text-align:center;color:var(--text-muted);font-size:13px">
-          Load the Reports tab to fetch data
+      <!-- Category Panel -->
+      <div class="report-panel" id="rpanel-category">
+        <div id="cat-report-container">
+          <div class="card">
+            <div class="loading-row" style="padding:26px;text-align:center;color:var(--text-muted);font-size:13px">
+              Switch to this tab to load category data
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- ══════════════════════════════════════════════ -->
-  <!-- PAGE: MASTER DATA                             -->
-  <!-- CHANGE 4: Added Category field to New Product -->
-  <!-- ══════════════════════════════════════════════ -->
-  <div id="page-master" class="page">
-    <div class="page-header">
-      <h1>Master Data</h1>
-      <p>Add new products, raw materials, and BOM entries to Google Sheets</p>
-    </div>
-    <div id="master-status" class="status-bar"></div>
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- PAGE: MASTER DATA                             -->
+    <!-- ══════════════════════════════════════════════ -->
+    <div id="page-master" class="page">
+      <div class="page-header">
+        <h1>Master Data</h1>
+        <p>Add new products, raw materials, and BOM entries to Google Sheets</p>
+      </div>
+      <div id="master-status" class="status-bar"></div>
 
-    <div class="master-grid">
-      <!-- New Product -->
-      <div class="card master-accent">
+      <div class="master-grid">
+        <!-- New Product -->
+        <div class="card master-accent">
+          <div class="card-header">
+            <span class="accent-badge">Products</span>
+            <h2>➕ New Product</h2>
+          </div>
+          <div class="form-body">
+            <div class="form-row">
+              <label>Product Code</label>
+              <input type="text" id="np-code" placeholder="e.g. FG004" autocomplete="off"/>
+              <div class="form-hint">Unique code — auto-uppercased</div>
+            </div>
+            <div class="form-row">
+              <label>Product Name</label>
+              <input type="text" id="np-name" placeholder="e.g. Widget Pro 500ml"/>
+            </div>
+            <div class="form-row">
+              <label>Category</label>
+              <input type="text" id="np-category" placeholder="e.g. Electrical"/>
+              <div class="form-hint">Must match exactly what's in your Products sheet column D</div>
+            </div>
+            <div class="form-row">
+              <label>Opening Stock <span style="font-weight:400;text-transform:none">(optional)</span></label>
+              <input type="number" id="np-stock" placeholder="0" min="0"/>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button class="submit-btn btn-purple" id="btn-np" onclick="addMasterItem('product')">Add Product to Sheet →</button>
+          </div>
+        </div>
+
+        <!-- New Raw Material -->
+        <div class="card master-accent">
+          <div class="card-header">
+            <span class="accent-badge">Raw Materials</span>
+            <h2>➕ New Raw Material</h2>
+          </div>
+          <div class="form-body">
+            <div class="form-row">
+              <label>Material Code</label>
+              <input type="text" id="nm-code" placeholder="e.g. RM005" autocomplete="off"/>
+              <div class="form-hint">Unique code — auto-uppercased</div>
+            </div>
+            <div class="form-row">
+              <label>Material Name</label>
+              <input type="text" id="nm-name" placeholder="e.g. Aluminium Sheet 2mm"/>
+            </div>
+            <div class="form-row">
+              <label>Opening Stock <span style="font-weight:400;text-transform:none">(optional)</span></label>
+              <input type="number" id="nm-stock" placeholder="0" min="0"/>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button class="submit-btn btn-purple" id="btn-nm" onclick="addMasterItem('material')">Add Material to Sheet →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOM -->
+      <div class="card bom-accent">
         <div class="card-header">
-          <span class="accent-badge">Products</span>
-          <h2>➕ New Product</h2>
+          <span class="accent-badge">BOM</span>
+          <h2>🧩 New Bill of Materials</h2>
         </div>
-        <div class="form-body">
-          <div class="form-row">
-            <label>Product Code</label>
-            <input type="text" id="np-code" placeholder="e.g. FG004" autocomplete="off"/>
-            <div class="form-hint">Unique code — auto-uppercased</div>
-          </div>
-          <div class="form-row">
-            <label>Product Name</label>
-            <input type="text" id="np-name" placeholder="e.g. Widget Pro 500ml"/>
-          </div>
-          <!-- CHANGE 4: Category dropdown -->
-          <div class="form-row">
-                         <label>Category</label>
-                         <input type="text" id="np-category" placeholder="e.g. as typed in your Google Sheet"/>
-                        <div class="form-hint">Must match exactly what's in your Products sheet column D</div>
-                         </div>
-          <div class="form-row">
-            <label>Opening Stock <span style="font-weight:400;text-transform:none">(optional)</span></label>
-            <input type="number" id="np-stock" placeholder="0" min="0"/>
+        <div style="padding:14px 20px 4px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+          <div style="flex:1; min-width:200px;">
+            <label style="font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;display:block;margin-bottom:5px;">Product Code</label>
+            <input type="text" id="bom-product-code" placeholder="e.g. FG004 — the product this BOM is for"
+              style="border:1px solid var(--border);border-radius:6px;padding:8px 12px;font-size:13.5px;font-family:'IBM Plex Sans',sans-serif;outline:none;width:100%;"
+              onfocus="this.style.borderColor='var(--teal)'" onblur="this.style.borderColor='var(--border)'"/>
           </div>
         </div>
-        <div class="card-footer">
-          <button class="submit-btn btn-purple" id="btn-np" onclick="addMasterItem('product')">Add Product to Sheet →</button>
+        <div class="bom-header">
+          <span>Material Code</span>
+          <span>Material Name (reference)</span>
+          <span>Qty / Unit</span>
+          <span></span>
+        </div>
+        <div id="bom-rows" class="bom-row-list"></div>
+        <button class="add-bom-row-btn" onclick="addBOMRow()">＋ Add material line</button>
+        <div class="card-footer" style="margin-top:8px;">
+          <button class="submit-btn btn-teal" id="btn-bom" onclick="submitBOM()">Save BOM Lines to Sheet →</button>
         </div>
       </div>
 
-      <!-- New Raw Material -->
-      <div class="card master-accent">
-        <div class="card-header">
-          <span class="accent-badge">Raw Materials</span>
-          <h2>➕ New Raw Material</h2>
-        </div>
-        <div class="form-body">
-          <div class="form-row">
-            <label>Material Code</label>
-            <input type="text" id="nm-code" placeholder="e.g. RM005" autocomplete="off"/>
-            <div class="form-hint">Unique code — auto-uppercased</div>
-          </div>
-          <div class="form-row">
-            <label>Material Name</label>
-            <input type="text" id="nm-name" placeholder="e.g. Aluminium Sheet 2mm"/>
-          </div>
-          <div class="form-row">
-            <label>Opening Stock <span style="font-weight:400;text-transform:none">(optional)</span></label>
-            <input type="number" id="nm-stock" placeholder="0" min="0"/>
-          </div>
-        </div>
-        <div class="card-footer">
-          <button class="submit-btn btn-purple" id="btn-nm" onclick="addMasterItem('material')">Add Material to Sheet →</button>
-        </div>
-      </div>
-    </div>
+    </div><!-- /page-master -->
 
-    <!-- BOM -->
-    <div class="card bom-accent">
-      <div class="card-header">
-        <span class="accent-badge">BOM</span>
-        <h2>🧩 New Bill of Materials</h2>
-      </div>
-      <div style="padding:14px 20px 4px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-        <div style="flex:1; min-width:200px;">
-          <label style="font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;display:block;margin-bottom:5px;">Product Code</label>
-          <input type="text" id="bom-product-code" placeholder="e.g. FG004 — the product this BOM is for"
-            style="border:1px solid var(--border);border-radius:6px;padding:8px 12px;font-size:13.5px;font-family:'IBM Plex Sans',sans-serif;outline:none;width:100%;"
-            onfocus="this.style.borderColor='var(--teal)'" onblur="this.style.borderColor='var(--border)'"/>
-        </div>
-      </div>
-      <div class="bom-header">
-        <span>Material Code</span>
-        <span>Material Name (reference)</span>
-        <span>Qty / Unit</span>
-        <span></span>
-      </div>
-      <div id="bom-rows" class="bom-row-list"></div>
-      <button class="add-bom-row-btn" onclick="addBOMRow()">＋ Add material line</button>
-      <div class="card-footer" style="margin-top:8px;">
-        <button class="submit-btn btn-teal" id="btn-bom" onclick="submitBOM()">Save BOM Lines to Sheet →</button>
-      </div>
-    </div>
-
-  </div><!-- /page-master -->
-
+  </div><!-- /main-content -->
 </div><!-- /app -->
 
 <script>
@@ -978,27 +1201,26 @@ const THRESHOLDS = {
 };
 
 // ═══════════════════════════════════════════════════════════
-// 1. LOGIN SYSTEM
+// LOGIN SYSTEM
 // ═══════════════════════════════════════════════════════════
 const USERS = [
-  { username: "tanav",      password: "raaj@2024" },
-  { username: "raaj",       password: "raaj@2024" },
-  { username: "varun",      password: "raaj@2024" },
-  { username: "ameet",      password: "raaj@2024" },
-  { username: "arun",       password: "raaj@2024" },
+  { username: "tanav",  password: "raaj@2024" },
+  { username: "raaj",   password: "raaj@2024" },
+  { username: "varun",  password: "raaj@2024" },
+  { username: "ameet",  password: "raaj@2024" },
+  { username: "arun",   password: "raaj@2024" },
 ];
 
 function doLogin() {
-  const user = document.getElementById("login-user").value.trim().toLowerCase();
-  const pass = document.getElementById("login-pass").value;
+  const user  = document.getElementById("login-user").value.trim().toLowerCase();
+  const pass  = document.getElementById("login-pass").value;
   const errEl = document.getElementById("login-error");
-
   const match = USERS.find(u => u.username.toLowerCase() === user && u.password === pass);
   if (match) {
     sessionStorage.setItem("raaj_user", match.username);
     document.getElementById("login-overlay").classList.add("hidden");
     document.getElementById("app").classList.add("visible");
-    document.getElementById("header-username").textContent = "👤 " + match.username;
+    setUserDisplay(match.username);
     errEl.classList.remove("show");
     initApp();
   } else {
@@ -1006,6 +1228,11 @@ function doLogin() {
     document.getElementById("login-pass").value = "";
     document.getElementById("login-pass").focus();
   }
+}
+
+function setUserDisplay(name) {
+  document.getElementById("header-username").textContent = name;
+  document.getElementById("user-avatar").textContent = name[0].toUpperCase();
 }
 
 function doLogout() {
@@ -1018,10 +1245,24 @@ window.addEventListener("DOMContentLoaded", () => {
   if (saved) {
     document.getElementById("login-overlay").classList.add("hidden");
     document.getElementById("app").classList.add("visible");
-    document.getElementById("header-username").textContent = "👤 " + saved;
+    setUserDisplay(saved);
     initApp();
   }
 });
+
+// ═══════════════════════════════════════════════════════════
+// SIDEBAR TOGGLE (mobile)
+// ═══════════════════════════════════════════════════════════
+function toggleSidebar() {
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("sidebar-overlay");
+  sidebar.classList.toggle("open");
+  overlay.classList.toggle("show");
+}
+function closeSidebar() {
+  document.getElementById("sidebar").classList.remove("open");
+  document.getElementById("sidebar-overlay").classList.remove("show");
+}
 
 // ═══════════════════════════════════════════════════════════
 // JSONP HELPER
@@ -1032,16 +1273,11 @@ function jsonp(params) {
     const url    = API_URL + "?" + new URLSearchParams({ ...params, callback: cbName });
     const script = document.createElement("script");
     script.src   = url;
-
-    const timer = setTimeout(() => {
-      cleanup(); reject(new Error("Request timed out after 30s"));
-    }, 30000);
-
+    const timer  = setTimeout(() => { cleanup(); reject(new Error("Request timed out after 30s")); }, 30000);
     function cleanup() {
       if (document.body.contains(script)) document.body.removeChild(script);
       delete window[cbName];
     }
-
     window[cbName] = (data) => { clearTimeout(timer); cleanup(); resolve(data); };
     script.onerror = () => { clearTimeout(timer); cleanup(); reject(new Error("Network error — check API URL")); };
     document.body.appendChild(script);
@@ -1062,14 +1298,41 @@ function showStatus(pageId, msg, type) {
 // ═══════════════════════════════════════════════════════════
 // NAVIGATION
 // ═══════════════════════════════════════════════════════════
+const PAGE_TITLES = {
+  entry:   ["Record Entry",    "Operations"],
+  stock:   ["Current Stock",   "Operations"],
+  ledger:  ["Stock Ledger",    "Operations"],
+  reports: ["Reports",         "Analysis"],
+  master:  ["Master Data",     "Configuration"],
+};
+
 function showPage(name, btn) {
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-  document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
   document.getElementById("page-" + name).classList.add("active");
   btn.classList.add("active");
+  const [title, sub] = PAGE_TITLES[name] || [name, ""];
+  document.getElementById("topbar-title").textContent   = title;
+  document.getElementById("topbar-subtitle").textContent = sub;
+  closeSidebar();
   if (name === "stock")   loadStock();
   if (name === "ledger")  loadLedger();
   if (name === "reports") loadReports();
+}
+
+// ═══════════════════════════════════════════════════════════
+// REPORT SUB-TABS
+// ═══════════════════════════════════════════════════════════
+let catReportLoaded = false;
+
+function switchReportTab(tab) {
+  document.querySelectorAll(".report-tab-btn").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll(".report-panel").forEach(p => p.classList.remove("active"));
+  document.getElementById("rtab-" + tab).classList.add("active");
+  document.getElementById("rpanel-" + tab).classList.add("active");
+  if (tab === "category" && !catReportLoaded) {
+    loadCategoryReport();
+  }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1090,17 +1353,8 @@ async function loadDropdowns() {
 }
 
 // ═══════════════════════════════════════════════════════════
-// CHANGE 1: SEARCHABLE DROPDOWN ENGINE
+// SEARCHABLE DROPDOWN ENGINE
 // ═══════════════════════════════════════════════════════════
-
-/**
- * Creates a searchable dropdown widget inside a <td>.
- * Returns an object with { getValue(), setValue(), refresh(items) }
- *
- * @param {HTMLElement} td        — the table cell to inject into
- * @param {Array}       items     — [{code, label}]
- * @param {string}      placeholder
- */
 function createSearchableDropdown(td, items, placeholder) {
   td.innerHTML = "";
   td.style.overflow = "visible";
@@ -1123,7 +1377,6 @@ function createSearchableDropdown(td, items, placeholder) {
   const dropdown = document.createElement("div");
   dropdown.className = "sdd-dropdown";
 
-  // Hidden value store (actual selected code)
   const valueStore = document.createElement("input");
   valueStore.type = "hidden";
   valueStore.className = "sdd-value";
@@ -1147,16 +1400,13 @@ function createSearchableDropdown(td, items, placeholder) {
       dropdown.appendChild(empty);
       return;
     }
-    filtered.forEach((item, idx) => {
+    filtered.forEach((item) => {
       const opt = document.createElement("div");
       opt.className = "sdd-option";
       opt.innerHTML = `<span class="sdd-code">${item.code}</span>${item.label}`;
-      opt.dataset.code = item.code;
+      opt.dataset.code  = item.code;
       opt.dataset.label = item.label;
-      opt.addEventListener("mousedown", (e) => {
-        e.preventDefault(); // prevent blur before click
-        selectItem(item);
-      });
+      opt.addEventListener("mousedown", (e) => { e.preventDefault(); selectItem(item); });
       dropdown.appendChild(opt);
     });
   }
@@ -1164,18 +1414,13 @@ function createSearchableDropdown(td, items, placeholder) {
   function openDropdown() {
     const query = input.value.trim().toLowerCase();
     const filtered = query
-      ? currentItems.filter(i =>
-          i.code.toLowerCase().includes(query) ||
-          i.label.toLowerCase().includes(query))
+      ? currentItems.filter(i => i.code.toLowerCase().includes(query) || i.label.toLowerCase().includes(query))
       : currentItems;
     renderOptions(filtered);
     dropdown.classList.add("open");
   }
 
-  function closeDropdown() {
-    dropdown.classList.remove("open");
-    highlightIdx = -1;
-  }
+  function closeDropdown() { dropdown.classList.remove("open"); highlightIdx = -1; }
 
   function selectItem(item) {
     valueStore.value = item.code;
@@ -1184,19 +1429,8 @@ function createSearchableDropdown(td, items, placeholder) {
     input.blur();
   }
 
-  function clearSelection() {
-    valueStore.value = "";
-  }
-
-  input.addEventListener("focus", () => {
-    input.select();
-    openDropdown();
-  });
-
-  input.addEventListener("input", () => {
-    clearSelection();
-    openDropdown();
-  });
+  input.addEventListener("focus", () => { input.select(); openDropdown(); });
+  input.addEventListener("input", () => { valueStore.value = ""; openDropdown(); });
 
   input.addEventListener("keydown", (e) => {
     const opts = dropdown.querySelectorAll(".sdd-option");
@@ -1214,71 +1448,46 @@ function createSearchableDropdown(td, items, placeholder) {
     } else if (e.key === "Enter") {
       e.preventDefault();
       if (highlightIdx >= 0 && opts[highlightIdx]) {
-        const code  = opts[highlightIdx].dataset.code;
-        const label = opts[highlightIdx].dataset.label;
-        selectItem({ code, label });
+        selectItem({ code: opts[highlightIdx].dataset.code, label: opts[highlightIdx].dataset.label });
       }
     } else if (e.key === "Escape") {
       closeDropdown();
     } else if (e.key === "Tab") {
-      // auto-select highlighted on Tab
       if (highlightIdx >= 0 && opts[highlightIdx]) {
-        const code  = opts[highlightIdx].dataset.code;
-        const label = opts[highlightIdx].dataset.label;
-        selectItem({ code, label });
-      } else {
-        closeDropdown();
-      }
+        selectItem({ code: opts[highlightIdx].dataset.code, label: opts[highlightIdx].dataset.label });
+      } else { closeDropdown(); }
     }
   });
 
-  // Close if click outside
-  document.addEventListener("click", (e) => {
-    if (!wrap.contains(e.target)) closeDropdown();
-  }, true);
+  document.addEventListener("click", (e) => { if (!wrap.contains(e.target)) closeDropdown(); }, true);
 
-  // Public API
   return {
-    getValue()      { return valueStore.value; },
-    setValue(code)  {
-      const item = currentItems.find(i => i.code === code);
-      if (item) selectItem(item);
-    },
+    getValue()     { return valueStore.value; },
+    setValue(code) { const item = currentItems.find(i => i.code === code); if (item) selectItem(item); },
     refresh(newItems) {
       const prevVal = valueStore.value;
       currentItems = newItems;
-      if (prevVal) {
-        const item = currentItems.find(i => i.code === prevVal);
-        if (item) selectItem(item);
-      }
+      if (prevVal) { const item = currentItems.find(i => i.code === prevVal); if (item) selectItem(item); }
     },
   };
 }
 
-// Registry of all active SDD instances so we can refresh them on dropdown reload
 const sddRegistry = { prod: [], purch: [], disp: [] };
 
 function refreshAllSearchableDropdowns() {
-  const prodItems  = cachedProducts.map(p  => ({ code: p.ProductCode,  label: p.Name }));
-  const matItems   = cachedMaterials.map(m => ({ code: m.MaterialCode, label: m.Name }));
-
+  const prodItems = cachedProducts.map(p  => ({ code: p.ProductCode,  label: p.Name }));
+  const matItems  = cachedMaterials.map(m => ({ code: m.MaterialCode, label: m.Name }));
   sddRegistry.prod.forEach(sdd  => sdd.refresh(prodItems));
   sddRegistry.purch.forEach(sdd => sdd.refresh(matItems));
   sddRegistry.disp.forEach(sdd  => sdd.refresh(prodItems));
 }
 
 // ═══════════════════════════════════════════════════════════
-// CHANGE 1 + 3: MULTI-LINE ENTRY — addLine with shared date
+// MULTI-LINE ENTRY
 // ═══════════════════════════════════════════════════════════
 const today = () => new Date().toISOString().split("T")[0];
-
 let lineCounters = { prod: 0, purch: 0, disp: 0 };
 
-/**
- * CHANGE 3: getFirstDate(type)
- * Returns the date value of the FIRST row for the given type,
- * or today() if no rows exist yet.
- */
 function getFirstDate(type) {
   const tbody = document.getElementById(type + "-lines");
   const firstDateInput = tbody.querySelector("." + type + "-date");
@@ -1291,16 +1500,12 @@ function addLine(type) {
   const tbody = document.getElementById(type + "-lines");
   const tr    = document.createElement("tr");
   tr.id = id;
-
-  // CHANGE 3: new rows inherit the first row's date
   const isFirstRow = tbody.querySelectorAll("tr").length === 0;
   const rowDate    = isFirstRow ? today() : getFirstDate(type);
-
   const isRaw = (type === "purch");
   const items = isRaw
     ? cachedMaterials.map(m => ({ code: m.MaterialCode, label: m.Name }))
     : cachedProducts.map(p  => ({ code: p.ProductCode,  label: p.Name }));
-
   tr.innerHTML = `
     <td><input type="date" class="${type}-date" value="${rowDate}"/></td>
     <td class="sdd-cell" style="overflow:visible"></td>
@@ -1309,46 +1514,21 @@ function addLine(type) {
     <td><button class="remove-line-btn" onclick="removeLine('${id}')" title="Remove">×</button></td>
   `;
   tbody.appendChild(tr);
-
-  // CHANGE 1: inject searchable dropdown into the .sdd-cell
   const sddCell = tr.querySelector(".sdd-cell");
   const sdd = createSearchableDropdown(sddCell, items, "Search product…");
-
-  // Register for future refreshes
   if (isRaw) sddRegistry.purch.push(sdd);
   else if (type === "disp") sddRegistry.disp.push(sdd);
   else sddRegistry.prod.push(sdd);
-
-  // CHANGE 3: if this is the FIRST row, listen to date changes
-  // so all subsequent rows that haven't been manually edited sync
-  // Note: we don't auto-update subsequent rows because user may have
-  // manually changed them — that's intentional per requirements.
 }
 
 function removeLine(id) {
   const el = document.getElementById(id);
-  if (!el) return;
-  // Remove the SDD from registry before removing the DOM element
-  const type = id.startsWith("prod") ? "prod" : id.startsWith("purch") ? "purch" : "disp";
-  const sddCell = el.querySelector(".sdd-cell");
-  if (sddCell) {
-    const registryKey = type === "purch" ? "purch" : type;
-    // We just let registry hold stale refs; getValue() on removed nodes returns ""
-    // which is filtered out in submitMulti anyway
-  }
-  el.remove();
+  if (el) el.remove();
 }
 
-// ═══════════════════════════════════════════════════════════
-// CHANGE 2 + 4: FORM RESET AFTER SUBMISSION
-// ═══════════════════════════════════════════════════════════
 function resetForm(type) {
-  // Clear SDD registry for this type
   sddRegistry[type] = [];
-  // Clear tbody
   document.getElementById(type + "-lines").innerHTML = "";
-  // lineCounter does NOT reset — keeps IDs unique
-  // Add a fresh empty row
   addLine(type);
 }
 
@@ -1362,93 +1542,75 @@ async function submitMulti(apiType) {
     dispatch:   { prefix: "disp",  btnId: "btn-disp",  label: "Submit Dispatch →" },
   };
   const { prefix, btnId, label } = typeMap[apiType];
-
   const tbody = document.getElementById(prefix + "-lines");
   const rows  = tbody.querySelectorAll("tr");
-
-  if (!rows.length) {
-    showStatus("entry", "⚠️  Add at least one line first.", "error"); return;
-  }
-
-  // Collect and validate — use sdd-value hidden inputs for code
-  const lines = [];
-  let hasError = false;
+  if (!rows.length) { showStatus("entry", "⚠️  Add at least one line first.", "error"); return; }
+  const lines = []; let hasError = false;
   rows.forEach(row => {
-    const dateEl  = row.querySelector("." + prefix + "-date");
-    const sddVal  = row.querySelector(".sdd-value");
-    const qtyEl   = row.querySelector("." + prefix + "-qty");
-    const code    = sddVal ? sddVal.value.trim() : "";
-    const qty     = qtyEl  ? Number(qtyEl.value)  : 0;
+    const dateEl = row.querySelector("." + prefix + "-date");
+    const sddVal = row.querySelector(".sdd-value");
+    const qtyEl  = row.querySelector("." + prefix + "-qty");
+    const code   = sddVal ? sddVal.value.trim() : "";
+    const qty    = qtyEl  ? Number(qtyEl.value)  : 0;
     if (!code || !qty || qty < 1) { hasError = true; return; }
     lines.push({ code, qty, date: dateEl ? dateEl.value : today() });
   });
-
   if (hasError || !lines.length) {
     showStatus("entry", "⚠️  All lines need a valid product/material and quantity ≥ 1.", "error"); return;
   }
-
   const btn = document.getElementById(btnId);
   btn.disabled = true; btn.textContent = "Processing…";
   showStatus("entry", `⏳  Submitting ${lines.length} line(s)…`, "loading");
-
   let saved = 0, errors = [];
   for (const line of lines) {
     try {
       const res = await jsonp({ type: apiType, code: line.code, qty: line.qty });
       if (res.status === "success") saved++;
       else errors.push(line.code + ": " + (res.message || "error"));
-    } catch (err) {
-      errors.push(line.code + ": " + err.message);
-    }
+    } catch (err) { errors.push(line.code + ": " + err.message); }
   }
-
   btn.disabled = false; btn.textContent = label;
-
   if (errors.length) {
     showStatus("entry", `⚠️  ${saved}/${lines.length} saved. Errors: ${errors.join(" | ")}`, "error");
   } else {
     showStatus("entry", `✅  ${saved} line(s) submitted and stock updated!`, "success");
-    // CHANGE 2: Full form reset on success
     resetForm(prefix);
   }
 }
 
 // ═══════════════════════════════════════════════════════════
-// STOCK PAGE — with search + sort
+// STOCK PAGE — category filter added
 // ═══════════════════════════════════════════════════════════
 let stockData = { products: [], materials: [] };
 
 function stockBadge(qty, threshold) {
   qty = Number(qty);
-  if (qty < 0)              return '<span class="badge badge-neg">Negative</span>';
-  if (qty === 0)            return '<span class="badge badge-out">Out</span>';
+  if (qty < 0)  return '<span class="badge badge-neg">Negative</span>';
+  if (qty === 0) return '<span class="badge badge-out">Out</span>';
   if (threshold && qty <= threshold) return '<span class="badge badge-low">Low</span>';
-  return                             '<span class="badge badge-ok">OK</span>';
+  return '<span class="badge badge-ok">OK</span>';
 }
 
 function stockSortOrder(qty) {
   qty = Number(qty);
-  if (qty > 0)  return 0;
-  if (qty < 0)  return 1;
+  if (qty > 0) return 0;
+  if (qty < 0) return 1;
   return 2;
 }
 
 function renderStockTable(tbodyId, items, thresholds) {
   const sorted = [...items].sort((a, b) => {
-    const sa = stockSortOrder(a.Stock);
-    const sb = stockSortOrder(b.Stock);
+    const sa = stockSortOrder(a.Stock), sb = stockSortOrder(b.Stock);
     if (sa !== sb) return sa - sb;
     return Number(b.Stock) - Number(a.Stock);
   });
-
   if (!sorted.length) {
     document.getElementById(tbodyId).innerHTML = '<tr class="empty-row"><td colspan="4">No items found</td></tr>';
     return;
   }
-
   document.getElementById(tbodyId).innerHTML = sorted.map(item => {
-    const code  = item.ProductCode || item.MaterialCode;
-    const t     = thresholds[code];
+    const code = item.ProductCode || item.MaterialCode;
+    const t    = thresholds[code];
     return `<tr>
       <td class="mono">${code}</td>
       <td>${item.Name}</td>
@@ -1458,17 +1620,39 @@ function renderStockTable(tbodyId, items, thresholds) {
   }).join("");
 }
 
+// ── NEW: populate category filter dropdown ──────────────────
+function buildCategoryFilter() {
+  const sel = document.getElementById("fg-cat-filter");
+  const cats = [...new Set(
+    stockData.products
+      .map(p => (p.Category || "").trim())
+      .filter(Boolean)
+  )].sort();
+  // Keep "All Categories" option, rebuild rest
+  sel.innerHTML = '<option value="">All Categories</option>';
+  cats.forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c; opt.textContent = c;
+    sel.appendChild(opt);
+  });
+}
+
+// ── UPDATED filterStock: uses both text search AND category ─
 function filterStock(which) {
   const query   = document.getElementById(which + "-search").value.trim().toLowerCase();
+  const catSel  = which === "fg" ? document.getElementById("fg-cat-filter") : null;
+  const catVal  = catSel ? catSel.value : "";
   const items   = which === "fg" ? stockData.products : stockData.materials;
   const tbodyId = which === "fg" ? "fg-tbody" : "rm-tbody";
-  const filtered = query
-    ? items.filter(i => {
-        const code = (i.ProductCode || i.MaterialCode || "").toLowerCase();
-        const name = (i.Name || "").toLowerCase();
-        return code.includes(query) || name.includes(query);
-      })
-    : items;
+
+  const filtered = items.filter(i => {
+    const code = (i.ProductCode || i.MaterialCode || "").toLowerCase();
+    const name = (i.Name || "").toLowerCase();
+    const cat  = (i.Category || "").trim();
+    const matchesSearch = !query || code.includes(query) || name.includes(query);
+    const matchesCat    = !catVal || cat === catVal;
+    return matchesSearch && matchesCat;
+  });
   renderStockTable(tbodyId, filtered, THRESHOLDS);
 }
 
@@ -1480,6 +1664,7 @@ async function loadStock() {
     const data = await jsonp({ type: "getStock" });
     stockData.products  = data.products  || [];
     stockData.materials = data.materials || [];
+    buildCategoryFilter();
     renderStockTable("fg-tbody", stockData.products,  THRESHOLDS);
     renderStockTable("rm-tbody", stockData.materials, THRESHOLDS);
     showStatus("stock", "✅  Stock loaded.", "success");
@@ -1525,9 +1710,12 @@ async function loadLedger() {
 }
 
 // ═══════════════════════════════════════════════════════════
-// REPORTS PAGE
+// REPORTS — MONTHLY
 // ═══════════════════════════════════════════════════════════
+let reportsLoaded = false;
+
 async function loadReports() {
+  if (reportsLoaded) return; // avoid double-load on tab revisit
   const container = document.getElementById("reports-container");
   container.innerHTML = `<div class="card"><div class="loading-row" style="padding:26px;text-align:center;color:var(--text-muted);font-size:13px">Loading reports…</div></div>`;
   showStatus("reports", "⏳  Fetching report data…", "loading");
@@ -1569,6 +1757,7 @@ async function loadReports() {
           </table>
         </div>`;
     }).join("");
+    reportsLoaded = true;
     showStatus("reports", "✅  Reports loaded.", "success");
   } catch (err) {
     container.innerHTML = `<div class="card"><div class="empty-row" style="padding:26px;text-align:center">❌ ${err.message}</div></div>`;
@@ -1577,7 +1766,121 @@ async function loadReports() {
 }
 
 // ═══════════════════════════════════════════════════════════
-// MASTER DATA — CHANGE 4: addProduct sends category
+// REPORTS — CATEGORY WISE STOCK
+// ═══════════════════════════════════════════════════════════
+async function loadCategoryReport() {
+  const container = document.getElementById("cat-report-container");
+  container.innerHTML = `<div class="card"><div class="loading-row" style="padding:26px;text-align:center;color:var(--text-muted);font-size:13px">Loading category data…</div></div>`;
+
+  try {
+    // Use cached stock if available, else fetch
+    let products = stockData.products;
+    if (!products.length) {
+      const data = await jsonp({ type: "getStock" });
+      products = data.products || [];
+      stockData.products  = products;
+      stockData.materials = data.materials || [];
+      buildCategoryFilter();
+    }
+
+    if (!products.length) {
+      container.innerHTML = `<div class="card"><div class="empty-row" style="padding:26px;text-align:center;color:var(--text-muted)">No product data found.</div></div>`;
+      catReportLoaded = true;
+      return;
+    }
+
+    // Group by category
+    const cats = {};
+    products.forEach(p => {
+      const cat = (p.Category || "").trim() || "Uncategorised";
+      if (!cats[cat]) cats[cat] = { products: [], totalStock: 0, lowCount: 0, outCount: 0 };
+      const stock = Number(p.Stock);
+      const code  = p.ProductCode;
+      const t     = THRESHOLDS[code];
+      cats[cat].products.push(p);
+      cats[cat].totalStock += stock;
+      if (stock <= 0) cats[cat].outCount++;
+      else if (t && stock <= t) cats[cat].lowCount++;
+    });
+
+    const sortedCats = Object.keys(cats).sort();
+
+    // Summary row above cards
+    const totalProducts = products.length;
+    const totalStock    = products.reduce((s, p) => s + Number(p.Stock), 0);
+    const totalOut      = products.filter(p => Number(p.Stock) <= 0).length;
+
+    const summaryHtml = `
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px;">
+        <div class="card" style="flex:1;min-width:140px;padding:16px 20px;margin-bottom:0;">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">Total Products</div>
+          <div style="font-size:26px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--text);">${totalProducts}</div>
+        </div>
+        <div class="card" style="flex:1;min-width:140px;padding:16px 20px;margin-bottom:0;">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">Total Stock Units</div>
+          <div style="font-size:26px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--text);">${totalStock.toLocaleString()}</div>
+        </div>
+        <div class="card" style="flex:1;min-width:140px;padding:16px 20px;margin-bottom:0;">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">Categories</div>
+          <div style="font-size:26px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--text);">${sortedCats.length}</div>
+        </div>
+        <div class="card" style="flex:1;min-width:140px;padding:16px 20px;margin-bottom:0;border-top:3px solid var(--danger);">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--danger);margin-bottom:6px;">Out of Stock</div>
+          <div style="font-size:26px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--danger);">${totalOut}</div>
+        </div>
+      </div>`;
+
+    const cardsHtml = `<div class="cat-grid">` + sortedCats.map(cat => {
+      const { products: catProds, totalStock: catStock, lowCount, outCount } = cats[cat];
+      return `
+        <div class="cat-card">
+          <div class="cat-card-name">${cat}</div>
+          <div class="cat-stat-row">
+            <span class="cat-stat-val">${catStock.toLocaleString()}</span>
+            <span class="cat-stat-label">units in stock</span>
+          </div>
+          <div class="cat-pills">
+            <span class="cat-pill cat-pill-total">${catProds.length} SKU${catProds.length !== 1 ? 's' : ''}</span>
+            ${lowCount  ? `<span class="cat-pill cat-pill-low">⚠ ${lowCount} low</span>` : ''}
+            ${outCount  ? `<span class="cat-pill cat-pill-out">⊗ ${outCount} out</span>` : ''}
+          </div>
+        </div>`;
+    }).join("") + `</div>`;
+
+    // Detail table per category
+    const tablesHtml = sortedCats.map(cat => {
+      const catProds = cats[cat].products;
+      const rows = [...catProds].sort((a, b) => Number(a.Stock) - Number(b.Stock));
+      return `
+        <div class="card month-section">
+          <div class="month-label">${cat} — ${catProds.length} product${catProds.length !== 1 ? 's' : ''}</div>
+          <table class="data-table">
+            <thead><tr><th>Code</th><th>Name</th><th>Stock</th><th>Status</th></tr></thead>
+            <tbody>
+              ${rows.map(p => {
+                const t = THRESHOLDS[p.ProductCode];
+                return `<tr>
+                  <td class="mono">${p.ProductCode}</td>
+                  <td>${p.Name}</td>
+                  <td class="stock-qty ${Number(p.Stock) < 0 ? 'qty-neg' : ''}">${Number(p.Stock).toLocaleString()}</td>
+                  <td>${stockBadge(p.Stock, t)}</td>
+                </tr>`;
+              }).join("")}
+            </tbody>
+          </table>
+        </div>`;
+    }).join("");
+
+    container.innerHTML = summaryHtml + cardsHtml + tablesHtml;
+    catReportLoaded = true;
+
+  } catch (err) {
+    container.innerHTML = `<div class="card"><div class="empty-row" style="padding:26px;text-align:center">❌ ${err.message}</div></div>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// MASTER DATA
 // ═══════════════════════════════════════════════════════════
 async function addMasterItem(itemType) {
   let code, name, stock, category, btnId, apiType;
@@ -1604,7 +1907,6 @@ async function addMasterItem(itemType) {
     const res = await jsonp(params);
     if (res.status === "success") {
       showStatus("master", "✅  " + res.message, "success");
-      // CHANGE 2: Reset master form fields after success
       if (itemType === "product") {
         ["np-code","np-name","np-stock"].forEach(id => document.getElementById(id).value = "");
         document.getElementById("np-category").value = "";
@@ -1668,7 +1970,6 @@ async function submitBOM() {
   if (errors.length) showStatus("master", `⚠️  ${saved} saved. Errors: ${errors.join(" | ")}`, "error");
   else {
     showStatus("master", `✅  ${saved} BOM line(s) saved for ${productCode}!`, "success");
-    // CHANGE 2: Reset BOM form on success
     document.getElementById("bom-product-code").value = "";
     document.getElementById("bom-rows").innerHTML = "";
     bomRowCount = 0;
