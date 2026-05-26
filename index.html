@@ -1000,7 +1000,7 @@
               <select class="filter-select" id="fg-cat-filter" onchange="filterStock('fg')">
                 <option value="">All Categories</option>
               </select>
-              <button class="refresh-btn" onclick="loadStock()">↻</button>
+              <button class="refresh-btn" onclick="loadStock(true)">↻ Refresh</button>
             </div>
           </div>
           <table class="data-table">
@@ -1015,7 +1015,7 @@
             <div class="filter-row">
               <input class="search-input" id="rm-search" placeholder="🔍 Search…"
                 oninput="filterStock('rm')" />
-              <button class="refresh-btn" onclick="loadStock()">↻</button>
+              <button class="refresh-btn" onclick="loadStock(true)">↻ Refresh</button>
             </div>
           </div>
           <table class="data-table">
@@ -1116,8 +1116,11 @@
             </div>
             <div class="form-row">
               <label>Category</label>
-              <input type="text" id="np-category" placeholder="e.g. MASALA DABBA"/>
-              <div class="form-hint">Must match exactly what's in your Products sheet column D</div>
+              <input type="text" id="np-category" placeholder="e.g. MASALA DABBA"
+                list="np-category-list" autocomplete="off"
+                onfocus="populateCategoryDatalist()"/>
+              <datalist id="np-category-list"></datalist>
+              <div class="form-hint">Pick an existing category or type a new one</div>
             </div>
             <div class="form-row">
               <label>Opening Stock <span style="font-weight:400;text-transform:none">(optional)</span></label>
@@ -1315,7 +1318,7 @@ function showPage(name, btn) {
   document.getElementById("topbar-title").textContent   = title;
   document.getElementById("topbar-subtitle").textContent = sub;
   closeSidebar();
-  if (name === "stock")   loadStock();
+  if (name === "stock")   loadStock();   // uses cache internally
   if (name === "ledger")  loadLedger();
   if (name === "reports") loadReports();
 }
@@ -1336,21 +1339,39 @@ function switchReportTab(tab) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// CACHED DROPDOWN DATA
+// MASTER DATA CACHE  — single source of truth for all pages
 // ═══════════════════════════════════════════════════════════
 let cachedProducts  = [];
 let cachedMaterials = [];
+let stockCacheValid = false;   // set false to force re-fetch on next access
+let _masterLoadPromise = null; // deduplicate in-flight requests
 
-async function loadDropdowns() {
-  try {
-    const data = await jsonp({ type: "getStock" });
-    cachedProducts  = data.products  || [];
-    cachedMaterials = data.materials || [];
-    refreshAllSearchableDropdowns();
-  } catch (err) {
-    console.warn("Dropdown load failed:", err.message);
-  }
+async function loadMasterData(force = false) {
+  // Return instantly if valid cache exists and no force
+  if (!force && stockCacheValid && cachedProducts.length) return;
+  // If already fetching, wait for the same promise (avoid duplicate JSONP calls)
+  if (_masterLoadPromise) return _masterLoadPromise;
+  _masterLoadPromise = (async () => {
+    try {
+      const data = await jsonp({ type: "getStock" });
+      cachedProducts  = data.products  || [];
+      cachedMaterials = data.materials || [];
+      // DEBUG: verify category data
+      console.debug("[Cache] Products loaded:", cachedProducts.length,
+        "| Unique categories:", [...new Set(cachedProducts.map(p => (p.Category||"").trim()).filter(Boolean))]);
+      stockCacheValid = true;
+      refreshAllSearchableDropdowns();
+    } catch (err) {
+      console.warn("Master data load failed:", err.message);
+    } finally {
+      _masterLoadPromise = null;
+    }
+  })();
+  return _masterLoadPromise;
 }
+
+// Kept as alias so existing calls to loadDropdowns() still work
+async function loadDropdowns() { return loadMasterData(); }
 
 // ═══════════════════════════════════════════════════════════
 // SEARCHABLE DROPDOWN ENGINE
@@ -1537,14 +1558,15 @@ function resetForm(type) {
 // ═══════════════════════════════════════════════════════════
 async function submitMulti(apiType) {
   const typeMap = {
-    production: { prefix: "prod",  btnId: "btn-prod",  label: "Submit Production →" },
-    purchase:   { prefix: "purch", btnId: "btn-purch", label: "Submit Purchase →" },
-    dispatch:   { prefix: "disp",  btnId: "btn-disp",  label: "Submit Dispatch →" },
+    production: { prefix: "prod",  btnId: "btn-prod",  label: "Submit Production →",  batchType: "batchProduction" },
+    purchase:   { prefix: "purch", btnId: "btn-purch", label: "Submit Purchase →",    batchType: "batchPurchase" },
+    dispatch:   { prefix: "disp",  btnId: "btn-disp",  label: "Submit Dispatch →",    batchType: "batchDispatch" },
   };
-  const { prefix, btnId, label } = typeMap[apiType];
+  const { prefix, btnId, label, batchType } = typeMap[apiType];
   const tbody = document.getElementById(prefix + "-lines");
   const rows  = tbody.querySelectorAll("tr");
   if (!rows.length) { showStatus("entry", "⚠️  Add at least one line first.", "error"); return; }
+
   const lines = []; let hasError = false;
   rows.forEach(row => {
     const dateEl = row.querySelector("." + prefix + "-date");
@@ -1558,23 +1580,31 @@ async function submitMulti(apiType) {
   if (hasError || !lines.length) {
     showStatus("entry", "⚠️  All lines need a valid product/material and quantity ≥ 1.", "error"); return;
   }
+
   const btn = document.getElementById(btnId);
   btn.disabled = true; btn.textContent = "Processing…";
-  showStatus("entry", `⏳  Submitting ${lines.length} line(s)…`, "loading");
-  let saved = 0, errors = [];
-  for (const line of lines) {
-    try {
-      const res = await jsonp({ type: apiType, code: line.code, qty: line.qty });
-      if (res.status === "success") saved++;
-      else errors.push(line.code + ": " + (res.message || "error"));
-    } catch (err) { errors.push(line.code + ": " + err.message); }
-  }
-  btn.disabled = false; btn.textContent = label;
-  if (errors.length) {
-    showStatus("entry", `⚠️  ${saved}/${lines.length} saved. Errors: ${errors.join(" | ")}`, "error");
-  } else {
-    showStatus("entry", `✅  ${saved} line(s) submitted and stock updated!`, "success");
-    resetForm(prefix);
+  showStatus("entry", `⏳  Submitting ${lines.length} line(s) in one batch…`, "loading");
+
+  try {
+    // Single API call — all rows sent at once via JSON-encoded parameter
+    const res = await jsonp({ type: batchType, rows: JSON.stringify(lines) });
+    btn.disabled = false; btn.textContent = label;
+    if (res.status === "success" || res.status === "partial") {
+      const msg = res.status === "partial"
+        ? `⚠️  ${res.saved}/${lines.length} saved. Check backend for details.`
+        : `✅  ${res.saved} line(s) submitted and stock updated!`;
+      showStatus("entry", msg, res.status === "partial" ? "error" : "success");
+      if (res.status === "success") resetForm(prefix);
+    } else {
+      showStatus("entry", "❌  " + (res.message || "Unknown error"), "error");
+    }
+    // Invalidate frontend cache so next stock page visit re-fetches
+    stockCacheValid = false;
+    reportsLoaded   = false;
+    catReportLoaded = false;
+  } catch (err) {
+    btn.disabled = false; btn.textContent = label;
+    showStatus("entry", "❌  " + err.message, "error");
   }
 }
 
@@ -1599,16 +1629,18 @@ function stockSortOrder(qty) {
 }
 
 function renderStockTable(tbodyId, items, thresholds) {
+  const tbody = document.getElementById(tbodyId);
   const sorted = [...items].sort((a, b) => {
     const sa = stockSortOrder(a.Stock), sb = stockSortOrder(b.Stock);
     if (sa !== sb) return sa - sb;
     return Number(b.Stock) - Number(a.Stock);
   });
   if (!sorted.length) {
-    document.getElementById(tbodyId).innerHTML = '<tr class="empty-row"><td colspan="4">No items found</td></tr>';
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="4">No items found</td></tr>';
     return;
   }
-  document.getElementById(tbodyId).innerHTML = sorted.map(item => {
+  // Build HTML string once — fastest for large lists, avoids per-row reflow
+  tbody.innerHTML = sorted.map(item => {
     const code = item.ProductCode || item.MaterialCode;
     const t    = thresholds[code];
     return `<tr>
@@ -1620,15 +1652,27 @@ function renderStockTable(tbodyId, items, thresholds) {
   }).join("");
 }
 
-// ── NEW: populate category filter dropdown ──────────────────
+// ── populate category filter dropdown ──────────────────────
 function buildCategoryFilter() {
   const sel = document.getElementById("fg-cat-filter");
+  if (!sel) return;
+
+  // Robust extraction: handle all falsy values, trim whitespace
   const cats = [...new Set(
     stockData.products
-      .map(p => (p.Category || "").trim())
-      .filter(Boolean)
+      .map(p => {
+        const raw = p.Category;
+        if (raw === null || raw === undefined || raw === false) return "";
+        return String(raw).trim();
+      })
+      .filter(c => c.length > 0)
   )].sort();
-  // Keep "All Categories" option, rebuild rest
+
+  // DEBUG: verify categories parsed correctly
+  console.debug("[Category Filter] Found categories:", cats);
+  console.debug("[Category Filter] Products with no category:",
+    stockData.products.filter(p => !String(p.Category || "").trim()).map(p => p.ProductCode));
+
   sel.innerHTML = '<option value="">All Categories</option>';
   cats.forEach(c => {
     const opt = document.createElement("option");
@@ -1637,8 +1681,13 @@ function buildCategoryFilter() {
   });
 }
 
-// ── UPDATED filterStock: uses both text search AND category ─
+// ── filterStock: text search + category filter with debounce ─
+const _filterDebounce = {};
 function filterStock(which) {
+  clearTimeout(_filterDebounce[which]);
+  _filterDebounce[which] = setTimeout(() => _doFilterStock(which), 120);
+}
+function _doFilterStock(which) {
   const query   = document.getElementById(which + "-search").value.trim().toLowerCase();
   const catSel  = which === "fg" ? document.getElementById("fg-cat-filter") : null;
   const catVal  = catSel ? catSel.value : "";
@@ -1648,7 +1697,7 @@ function filterStock(which) {
   const filtered = items.filter(i => {
     const code = (i.ProductCode || i.MaterialCode || "").toLowerCase();
     const name = (i.Name || "").toLowerCase();
-    const cat  = (i.Category || "").trim();
+    const cat  = String(i.Category || "").trim();
     const matchesSearch = !query || code.includes(query) || name.includes(query);
     const matchesCat    = !catVal || cat === catVal;
     return matchesSearch && matchesCat;
@@ -1656,14 +1705,18 @@ function filterStock(which) {
   renderStockTable(tbodyId, filtered, THRESHOLDS);
 }
 
-async function loadStock() {
+async function loadStock(force = false) {
   document.getElementById("fg-tbody").innerHTML = '<tr class="loading-row"><td colspan="4">Loading…</td></tr>';
   document.getElementById("rm-tbody").innerHTML = '<tr class="loading-row"><td colspan="4">Loading…</td></tr>';
   showStatus("stock", "⏳  Fetching stock…", "loading");
   try {
-    const data = await jsonp({ type: "getStock" });
-    stockData.products  = data.products  || [];
-    stockData.materials = data.materials || [];
+    // Reuse master cache; pass force=true only on manual refresh
+    if (force) stockCacheValid = false;
+    await loadMasterData(force);
+    stockData.products  = cachedProducts;
+    stockData.materials = cachedMaterials;
+    // DEBUG: log category values received
+    console.debug("[Stock] Category values:", cachedProducts.map(p => p.Category));
     buildCategoryFilter();
     renderStockTable("fg-tbody", stockData.products,  THRESHOLDS);
     renderStockTable("rm-tbody", stockData.materials, THRESHOLDS);
@@ -1716,6 +1769,8 @@ let reportsLoaded = false;
 
 async function loadReports() {
   if (reportsLoaded) return; // avoid double-load on tab revisit
+  // Ensure master data is ready (needed for future product name enrichment)
+  await loadMasterData();
   const container = document.getElementById("reports-container");
   container.innerHTML = `<div class="card"><div class="loading-row" style="padding:26px;text-align:center;color:var(--text-muted);font-size:13px">Loading reports…</div></div>`;
   showStatus("reports", "⏳  Fetching report data…", "loading");
@@ -1773,15 +1828,16 @@ async function loadCategoryReport() {
   container.innerHTML = `<div class="card"><div class="loading-row" style="padding:26px;text-align:center;color:var(--text-muted);font-size:13px">Loading category data…</div></div>`;
 
   try {
-    // Use cached stock if available, else fetch
+    // Always use shared master cache
+    await loadMasterData();
+    stockData.products  = cachedProducts;
+    stockData.materials = cachedMaterials;
     let products = stockData.products;
-    if (!products.length) {
-      const data = await jsonp({ type: "getStock" });
-      products = data.products || [];
-      stockData.products  = products;
-      stockData.materials = data.materials || [];
-      buildCategoryFilter();
-    }
+
+    // DEBUG: check category data coming into report
+    console.debug("[Cat Report] Total products:", products.length);
+    console.debug("[Cat Report] Category map:", products.map(p => p.ProductCode + "=" + (p.Category || "NONE")));
+    buildCategoryFilter();
 
     if (!products.length) {
       container.innerHTML = `<div class="card"><div class="empty-row" style="padding:26px;text-align:center;color:var(--text-muted)">No product data found.</div></div>`;
@@ -1913,7 +1969,9 @@ async function addMasterItem(itemType) {
       } else {
         ["nm-code","nm-name","nm-stock"].forEach(id => document.getElementById(id).value = "");
       }
-      loadDropdowns();
+      // Bust cache so next fetch returns fresh master data with new item
+      stockCacheValid = false;
+      loadMasterData(true);
     } else {
       showStatus("master", "❌  " + (res.message || "Unknown error"), "error");
     }
@@ -1958,22 +2016,23 @@ async function submitBOM() {
   if (hasError || !lines.length) { showStatus("master", "⚠️  Each line needs a Material Code and Qty > 0.", "error"); return; }
   const btn = document.getElementById("btn-bom");
   btn.disabled = true; btn.textContent = "Saving…";
-  showStatus("master", `⏳  Saving ${lines.length} BOM line(s)…`, "loading");
-  let saved = 0, errors = [];
-  for (const line of lines) {
-    try {
-      const res = await jsonp({ type: "addBOM", productCode, matCode: line.matCode, qty: line.qty });
-      if (res.status === "success") saved++;
-      else errors.push(line.matCode + ": " + res.message);
-    } catch (err) { errors.push(line.matCode + ": " + err.message); }
-  }
-  if (errors.length) showStatus("master", `⚠️  ${saved} saved. Errors: ${errors.join(" | ")}`, "error");
-  else {
-    showStatus("master", `✅  ${saved} BOM line(s) saved for ${productCode}!`, "success");
-    document.getElementById("bom-product-code").value = "";
-    document.getElementById("bom-rows").innerHTML = "";
-    bomRowCount = 0;
-    addBOMRow();
+  showStatus("master", `⏳  Saving ${lines.length} BOM line(s) in one batch…`, "loading");
+  try {
+    // Single batch call instead of N sequential calls
+    const res = await jsonp({ type: "addBOMBatch", productCode, lines: JSON.stringify(lines) });
+    if (res.status === "success") {
+      showStatus("master", `✅  ${res.saved} BOM line(s) saved for ${productCode}!`, "success");
+      document.getElementById("bom-product-code").value = "";
+      document.getElementById("bom-rows").innerHTML = "";
+      bomRowCount = 0;
+      addBOMRow();
+    } else if (res.status === "partial") {
+      showStatus("master", `⚠️  ${res.saved} saved. Issues: ${(res.errors||[]).join(" | ")}`, "error");
+    } else {
+      showStatus("master", "❌  " + (res.message || "Unknown error"), "error");
+    }
+  } catch (err) {
+    showStatus("master", "❌  " + err.message, "error");
   }
   btn.disabled = false; btn.textContent = "Save BOM Lines to Sheet →";
 }
@@ -1981,12 +2040,23 @@ async function submitBOM() {
 // ═══════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════
+// Populate the category datalist from cached products
+function populateCategoryDatalist() {
+  const dl = document.getElementById("np-category-list");
+  if (!dl) return;
+  const cats = [...new Set(
+    cachedProducts.map(p => String(p.Category || "").trim()).filter(Boolean)
+  )].sort();
+  dl.innerHTML = cats.map(c => `<option value="${c}"></option>`).join("");
+}
+
 function initApp() {
   addLine("prod");
   addLine("purch");
   addLine("disp");
   addBOMRow();
-  loadDropdowns();
+  // Pre-fetch master data once on login — all pages share this cache
+  loadMasterData();
 }
 </script>
 </body>
