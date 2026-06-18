@@ -364,7 +364,7 @@
         <span class="nav-icon">📊</span> Reports
       </button>
       <button class="nav-btn" id="nav-ledger" onclick="showPage('ledger',this)">
-        <span class="nav-icon">📋</span> Ledger
+        <span class="nav-icon">🔄</span> Transactions
       </button>
       <div class="nav-section-label">Setup</div>
       <button class="nav-btn" id="nav-master" onclick="showPage('master',this)">
@@ -780,12 +780,15 @@
     </div>
 
     <!-- ════════════════════ LEDGER PAGE ════════════════════ -->
+    <!-- ════════════ RECENT TRANSACTIONS PAGE ════════════ -->
     <div class="page" id="page-ledger">
       <div class="page-header">
-        <h1>Stock Ledger</h1>
-        <p>Full audit trail — every transaction that changed stock</p>
+        <h1>Transactions</h1>
+        <p>View, edit, cancel, or reverse any transaction</p>
       </div>
       <div id="status-ledger" class="status-bar"></div>
+
+      <!-- Filter Bar -->
       <div class="card" style="margin-bottom:14px">
         <div class="card-body" style="padding:14px">
           <div class="form-row" style="margin-bottom:10px">
@@ -801,46 +804,119 @@
               <label>Transaction Type</label>
               <select id="led-type">
                 <option value="">All Types</option>
-                <option value="Production">Production</option>
-                <option value="Purchase">Purchase</option>
-                <option value="Dispatch">Dispatch</option>
-                <option value="Consumption">Consumption</option>
-                <option value="Adjustment">Adjustment</option>
+                <option value="production">Production</option>
+                <option value="purchase">Purchase</option>
+                <option value="dispatch">Dispatch</option>
+              </select>
+            </div>
+            <div class="form-group" style="min-width:120px">
+              <label>Status</label>
+              <select id="led-status">
+                <option value="">All Status</option>
+                <option value="Active">Active</option>
+                <option value="Cancelled">Cancelled</option>
+                <option value="Reversed">Reversed</option>
               </select>
             </div>
             <div class="form-group" style="min-width:180px">
-              <label>Search Item / Ref</label>
-              <input type="text" id="led-search" placeholder="Name, code, or ref...">
+              <label>Search</label>
+              <input type="text" id="led-search" placeholder="Code, name, or ref...">
             </div>
           </div>
           <div class="btn-group">
-            <button class="btn btn-primary" onclick="loadLedger()">Load</button>
-            <button class="btn btn-secondary" onclick="resetLedgerFilters()">Clear Filters</button>
+            <button class="btn btn-primary" onclick="loadTransactions()">Load</button>
+            <button class="btn btn-secondary" onclick="resetTxFilters()">Clear</button>
           </div>
         </div>
       </div>
-      <div id="ledger-summary" style="font-size:12px;color:var(--text-muted);margin-bottom:8px"></div>
+
+      <div id="tx-summary" style="font-size:12px;color:var(--text-muted);margin-bottom:8px"></div>
+
+      <!-- Transactions Table -->
       <div class="card">
         <div style="overflow-x:auto">
-          <table class="data-table ledger-table">
+          <table class="data-table" id="tx-table">
             <thead>
               <tr>
-                <th class="col-date">Date &amp; Time</th>
-                <th class="col-type">Tx Type</th>
-                <th class="col-ref">Ref #</th>
-                <th class="col-code">Item Code</th>
-                <th>Item Name</th>
-                <th class="col-qty">Qty Change</th>
-                <th class="col-stock">Opening</th>
-                <th class="col-stock">Closing</th>
-                <th>User</th>
-                <th>Remarks</th>
+                <th style="min-width:90px;font-family:'IBM Plex Mono',monospace;font-size:11px">Tx ID</th>
+                <th style="min-width:85px">Date</th>
+                <th style="min-width:90px">Type</th>
+                <th style="font-family:'IBM Plex Mono',monospace;font-size:11px">Code</th>
+                <th>Name</th>
+                <th style="font-family:'IBM Plex Mono',monospace;font-weight:600;text-align:right">Qty</th>
+                <th style="font-size:11px;color:var(--text-muted)">Ref</th>
+                <th style="min-width:90px">Status</th>
+                <th style="min-width:140px">Actions</th>
               </tr>
             </thead>
-            <tbody id="ledger-tbody">
-              <tr><td colspan="10" style="text-align:center;color:var(--text-muted);padding:24px">Set filters and click Load</td></tr>
+            <tbody id="tx-tbody">
+              <tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:24px">Set filters and click Load</td></tr>
             </tbody>
           </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════ EDIT TRANSACTION MODAL ════════════ -->
+    <div class="modal-overlay" id="modal-edit-tx">
+      <div class="modal" style="max-width:480px">
+        <div class="modal-header">
+          <div class="modal-title">✏️ Edit Transaction</div>
+          <button class="modal-close" onclick="closeModal('modal-edit-tx')">✕</button>
+        </div>
+        <div class="modal-body">
+          <div id="status-edit-tx" class="status-bar"></div>
+          <div style="background:var(--warn-light);border:1px solid var(--warn);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--warn);margin-bottom:16px">
+            ⚠️ Editing a processed transaction will automatically adjust stock to match the new values.
+          </div>
+          <input type="hidden" id="edit-tx-id">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Date</label>
+              <input type="date" id="edit-tx-date">
+            </div>
+            <div class="form-group">
+              <label>Quantity</label>
+              <input type="number" id="edit-tx-qty" min="0.01" step="0.01">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Reference / Vendor / Customer</label>
+              <input type="text" id="edit-tx-ref" placeholder="Optional">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Remarks</label>
+              <input type="text" id="edit-tx-remarks" placeholder="Reason for edit (optional)">
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px">
+            <strong>Note:</strong> To change the product/material code, use Cancel + create a new entry.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeModal('modal-edit-tx')">Cancel</button>
+          <button class="btn btn-primary" onclick="saveEditTx()">Save Changes</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════ CONFIRM ACTION MODAL ════════════ -->
+    <div class="modal-overlay" id="modal-tx-confirm">
+      <div class="modal" style="max-width:420px">
+        <div class="modal-header">
+          <div class="modal-title" id="tx-confirm-title">Confirm Action</div>
+          <button class="modal-close" onclick="closeModal('modal-tx-confirm')">✕</button>
+        </div>
+        <div class="modal-body">
+          <div id="status-tx-confirm" class="status-bar"></div>
+          <p id="tx-confirm-msg" style="font-size:14px;line-height:1.6;color:var(--text)"></p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeModal('modal-tx-confirm')">No, go back</button>
+          <button class="btn btn-danger" id="tx-confirm-btn" onclick="">Confirm</button>
         </div>
       </div>
     </div>
@@ -1070,7 +1146,7 @@
 // ═══════════════════════════════════════════════════
 //  CONFIG
 // ═══════════════════════════════════════════════════
-const API_URL = "https://script.google.com/macros/s/AKfycbwqnHC4T0QuDGtwjiuAq6PtxyP58J4Ul5j4ZvJ45_0F-zMvPtMaEMLtWYvVejxiy66G/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwZOefHzya_-6n2eekPUMrCQ7M-PV9PyygPEOjKXUzStemhea3Tpy7NTLveDD9_2NMq/exec";
 
 const USERS = {
   raaj:      { pass: "raaj@2026",  name: "raaj",      role: "admin"    },
@@ -1131,7 +1207,7 @@ function closeSidebar() {
 const PAGE_TITLES = {
   dashboard: "Dashboard", orders: "Production Orders", entry: "Quick Entry",
   fg: "Finished Goods", rm: "Raw Materials", bom: "BOM View",
-  planner: "RM Planner", reports: "Reports", ledger: "Stock Ledger", master: "Master Data"
+  planner: "RM Planner", reports: "Reports", ledger: "Transactions", master: "Master Data"
 };
 
 function showPage(name, btn) {
@@ -2185,6 +2261,11 @@ function kpiCard(label, value) {
 // ═══════════════════════════════════════════════════
 //  STOCK LEDGER (Phase 2 — 10-col Professional)
 // ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════
+//  TRANSACTIONS PAGE (replaces Stock Ledger)
+// ═══════════════════════════════════════════════════
+let _txRows = [];
+
 function initLedgerPage() {
   const now = new Date();
   const monthAgo = new Date(now); monthAgo.setDate(monthAgo.getDate()-30);
@@ -2192,51 +2273,159 @@ function initLedgerPage() {
   if (!document.getElementById("led-to").value)   document.getElementById("led-to").value   = now.toISOString().slice(0,10);
 }
 
-async function loadLedger() {
+async function loadLedger() { return loadTransactions(); }
+
+async function loadTransactions() {
   const from   = document.getElementById("led-from").value;
   const to     = document.getElementById("led-to").value;
   const txType = document.getElementById("led-type").value;
+  const status = document.getElementById("led-status") ? document.getElementById("led-status").value : "";
   const search = document.getElementById("led-search").value;
-  showStatus("status-ledger","Loading ledger...","loading");
+  showStatus("status-ledger","Loading transactions...","loading");
   try {
-    const data = await jsonp({ action: "getLedger", from, to, txType, search, limit: 500 });
+    const data = await jsonp({ action: "getTransactions", from, to, txType, status, search, limit: 300 });
     showStatus("status-ledger","","");
-    const rows = data.rows || [];
-    const summary = document.getElementById("ledger-summary");
-    summary.textContent = rows.length ? rows.length + " entries" + (rows.length === 500 ? " (limit reached — narrow your date range)" : "") : "";
-
-    const tbody = document.getElementById("ledger-tbody");
-    if (!rows.length) {
-      tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--text-muted);padding:24px">No entries for this range</td></tr>';
-      return;
-    }
-    tbody.innerHTML = rows.map(r => {
-      const qtyChange = parseFloat(r.qtyChange) || 0;
-      const qtyCls    = qtyChange > 0 ? "qty-positive" : qtyChange < 0 ? "qty-negative" : "";
-      const qtySign   = qtyChange > 0 ? "+" : "";
-      return '<tr>' +
-        '<td class="col-date">' + (r.date||"—") + '</td>' +
-        '<td class="col-type">' + txBadge(r.txType||r.type||"") + '</td>' +
-        '<td class="col-ref">'  + (r.refNumber||"—") + '</td>' +
-        '<td class="col-code">' + (r.itemCode||r.code||"—") + '</td>' +
-        '<td>' + (r.item||"—") + '</td>' +
-        '<td class="col-qty ' + qtyCls + '">' + qtySign + fmtNum(qtyChange) + '</td>' +
-        '<td class="col-stock">' + (r.openingStock !== undefined && r.openingStock !== 0 ? fmtNum(r.openingStock) : "—") + '</td>' +
-        '<td class="col-stock">' + (r.closingStock !== undefined && r.closingStock !== 0 ? fmtNum(r.closingStock) : "—") + '</td>' +
-        '<td style="font-size:11px;color:var(--text-muted)">' + (r.user||"—") + '</td>' +
-        '<td style="font-size:11px;color:var(--text-muted)">' + (r.remarks||r.notes||"—") + '</td>' +
-        '</tr>';
-    }).join("");
+    _txRows = data.rows || [];
+    const summary = document.getElementById("tx-summary");
+    if (summary) summary.textContent = _txRows.length ? _txRows.length + " transaction(s)" + (_txRows.length === 300 ? " (limit — narrow filters)" : "") : "";
+    renderTxTable(_txRows);
   } catch(e) {
     showStatus("status-ledger","Error: " + e.message,"error");
   }
 }
 
-function resetLedgerFilters() {
+function renderTxTable(rows) {
+  const tbody = document.getElementById("tx-tbody");
+  if (!tbody) return;
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:24px">No transactions found</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(r => {
+    const statusBadge = txStatusBadge(r.txStatus);
+    const actions     = buildTxActions(r);
+    const rowStyle    = r.txStatus === "Cancelled" ? ' style="opacity:0.55"' : r.txStatus === "Reversed" ? ' style="opacity:0.7"' : "";
+    return '<tr' + rowStyle + '>' +
+      '<td style="font-family:IBM Plex Mono,monospace;font-size:11px;color:var(--text-muted)">' + r.txId + '</td>' +
+      '<td style="white-space:nowrap;font-size:12px">' + (r.date||"—") + '</td>' +
+      '<td>' + txBadge(r.txType) + '</td>' +
+      '<td style="font-family:IBM Plex Mono,monospace;font-size:11px">' + r.code + '</td>' +
+      '<td style="font-size:13px">' + (r.name||r.code) + '</td>' +
+      '<td style="font-family:IBM Plex Mono,monospace;font-weight:600;text-align:right">' + fmtNum(r.qty) + '</td>' +
+      '<td style="font-size:11px;color:var(--text-muted)">' + (r.ref||"—") + '</td>' +
+      '<td>' + statusBadge + '</td>' +
+      '<td>' + actions + '</td>' +
+      '</tr>';
+  }).join("");
+}
+
+function txStatusBadge(status) {
+  if (status === "Cancelled") return '<span class="badge badge-red">Cancelled</span>';
+  if (status === "Reversed")  return '<span class="badge badge-orange">Reversed</span>';
+  return '<span class="badge badge-green">Active</span>';
+}
+
+function buildTxActions(r) {
+  if (r.txStatus === "Cancelled") return '<span style="font-size:11px;color:var(--text-muted)">—</span>';
+  if (r.txStatus === "Reversed")  return '<span style="font-size:11px;color:var(--text-muted)">—</span>';
+  const id = r.txId;
+  return '<button class="btn btn-xs btn-secondary" onclick="openEditTx('' + id + '')" title="Edit" style="margin-right:2px">✏️</button>' +
+    '<button class="btn btn-xs" style="background:var(--danger-light);color:var(--danger);border:1px solid #fca5a5;margin-right:2px" onclick="openCancelTx('' + id + '')" title="Cancel">❌</button>' +
+    '<button class="btn btn-xs" style="background:var(--disp-light);color:var(--disp);border:1px solid #fdba74" onclick="openReverseTx('' + id + '')" title="Reverse">↩</button>';
+}
+
+function resetTxFilters() {
   document.getElementById("led-type").value   = "";
+  if (document.getElementById("led-status")) document.getElementById("led-status").value = "";
   document.getElementById("led-search").value = "";
   initLedgerPage();
 }
+
+function openEditTx(txId) {
+  const row = _txRows.find(r => r.txId === txId);
+  if (!row) return;
+  document.getElementById("edit-tx-id").value      = txId;
+  document.getElementById("edit-tx-qty").value     = row.qty;
+  document.getElementById("edit-tx-ref").value     = row.ref || "";
+  document.getElementById("edit-tx-remarks").value = "";
+  try {
+    const d = new Date(row.date);
+    if (!isNaN(d)) document.getElementById("edit-tx-date").value = d.toISOString().slice(0,10);
+    else { const today = new Date(); document.getElementById("edit-tx-date").value = today.toISOString().slice(0,10); }
+  } catch(_) {}
+  showStatus("status-edit-tx","","");
+  openModal("modal-edit-tx");
+}
+
+async function saveEditTx() {
+  const txId    = document.getElementById("edit-tx-id").value;
+  const date    = document.getElementById("edit-tx-date").value;
+  const qty     = document.getElementById("edit-tx-qty").value;
+  const ref     = document.getElementById("edit-tx-ref").value;
+  const remarks = document.getElementById("edit-tx-remarks").value;
+  if (!qty || parseFloat(qty) <= 0) return showStatus("status-edit-tx","Quantity must be greater than 0","error");
+  showStatus("status-edit-tx","Saving...","loading");
+  try {
+    const res = await jsonp({ action: "editTransaction", txId, date, qty, ref, remarks });
+    if (res.success) {
+      showStatus("status-edit-tx","Saved!","success");
+      setTimeout(() => { closeModal("modal-edit-tx"); loadTransactions(); }, 800);
+    } else {
+      showStatus("status-edit-tx", res.error || "Save failed", "error");
+    }
+  } catch(e) {
+    showStatus("status-edit-tx","Error: " + e.message,"error");
+  }
+}
+
+function openCancelTx(txId) {
+  const row = _txRows.find(r => r.txId === txId);
+  if (!row) return;
+  document.getElementById("tx-confirm-title").textContent = "❌ Cancel Transaction";
+  document.getElementById("tx-confirm-msg").innerHTML =
+    'Cancel <strong>' + txId + '</strong>?<br><br>' +
+    '<strong>Type:</strong> ' + row.txType + ' &nbsp; <strong>Code:</strong> ' + row.code + ' &nbsp; <strong>Qty:</strong> ' + fmtNum(row.qty) + '<br><br>' +
+    (row.isDone
+      ? '<span style="color:var(--warn)">⚠️ This was already processed. Stock will be corrected automatically.</span>'
+      : 'Not yet processed — stock is unaffected.') +
+    '<br><br>The row is <strong>not deleted</strong> — it stays visible as Cancelled.';
+  showStatus("status-tx-confirm","","");
+  const btn = document.getElementById("tx-confirm-btn");
+  btn.textContent = "Cancel Transaction";
+  btn.onclick = async function() {
+    showStatus("status-tx-confirm","Processing...","loading");
+    try {
+      const res = await jsonp({ action: "cancelTransaction", txId });
+      if (res.success) { closeModal("modal-tx-confirm"); loadTransactions(); }
+      else showStatus("status-tx-confirm", res.error||"Failed","error");
+    } catch(e) { showStatus("status-tx-confirm","Error: "+e.message,"error"); }
+  };
+  openModal("modal-tx-confirm");
+}
+
+function openReverseTx(txId) {
+  const row = _txRows.find(r => r.txId === txId);
+  if (!row) return;
+  document.getElementById("tx-confirm-title").textContent = "↩ Reverse Transaction";
+  document.getElementById("tx-confirm-msg").innerHTML =
+    'Reverse <strong>' + txId + '</strong>?<br><br>' +
+    '<strong>Type:</strong> ' + row.txType + ' &nbsp; <strong>Code:</strong> ' + row.code + ' &nbsp; <strong>Qty:</strong> ' + fmtNum(row.qty) + '<br><br>' +
+    'A new <strong>opposite-sign transaction</strong> will be created and stock updated immediately.<br>' +
+    'The original row is marked Reversed and stays unchanged.';
+  showStatus("status-tx-confirm","","");
+  const btn = document.getElementById("tx-confirm-btn");
+  btn.textContent = "Reverse Transaction";
+  btn.onclick = async function() {
+    showStatus("status-tx-confirm","Processing...","loading");
+    try {
+      const res = await jsonp({ action: "reverseTransaction", txId });
+      if (res.success) { closeModal("modal-tx-confirm"); loadTransactions(); }
+      else showStatus("status-tx-confirm", res.error||"Failed","error");
+    } catch(e) { showStatus("status-tx-confirm","Error: "+e.message,"error"); }
+  };
+  openModal("modal-tx-confirm");
+}
+
 
 // ═══════════════════════════════════════════════════
 //  MASTER DATA
