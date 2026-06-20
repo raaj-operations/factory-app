@@ -1146,7 +1146,7 @@
 // ═══════════════════════════════════════════════════
 //  CONFIG
 // ═══════════════════════════════════════════════════
-const API_URL = "https://script.google.com/macros/s/AKfycbwZOefHzya_-6n2eekPUMrCQ7M-PV9PyygPEOjKXUzStemhea3Tpy7NTLveDD9_2NMq/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwqnHC4T0QuDGtwjiuAq6PtxyP58J4Ul5j4ZvJ45_0F-zMvPtMaEMLtWYvVejxiy66G/exec";
 
 const USERS = {
   raaj:      { pass: "raaj@2026",  name: "raaj",      role: "admin"    },
@@ -2328,10 +2328,11 @@ function txStatusBadge(status) {
 function buildTxActions(r) {
   if (r.txStatus === "Cancelled") return '<span style="font-size:11px;color:var(--text-muted)">—</span>';
   if (r.txStatus === "Reversed")  return '<span style="font-size:11px;color:var(--text-muted)">—</span>';
-  const id = r.txId;
-  return '<button class="btn btn-xs btn-secondary" onclick="openEditTx('' + id + '')" title="Edit" style="margin-right:2px">✏️</button>' +
-    '<button class="btn btn-xs" style="background:var(--danger-light);color:var(--danger);border:1px solid #fca5a5;margin-right:2px" onclick="openCancelTx('' + id + '')" title="Cancel">❌</button>' +
-    '<button class="btn btn-xs" style="background:var(--disp-light);color:var(--disp);border:1px solid #fdba74" onclick="openReverseTx('' + id + '')" title="Reverse">↩</button>';
+  var id = r.txId;
+  var edit    = '<button class="btn btn-xs btn-secondary" data-txid="' + id + '" data-action="edit" title="Edit" style="margin-right:2px">✏️</button>';
+  var cancel  = '<button class="btn btn-xs" style="background:var(--danger-light);color:var(--danger);border:1px solid #fca5a5;margin-right:2px" data-txid="' + id + '" data-action="cancel" title="Cancel">❌</button>';
+  var reverse = '<button class="btn btn-xs" style="background:var(--disp-light);color:var(--disp);border:1px solid #fdba74" data-txid="' + id + '" data-action="reverse" title="Reverse">↩</button>';
+  return edit + cancel + reverse;
 }
 
 function resetTxFilters() {
@@ -2340,6 +2341,19 @@ function resetTxFilters() {
   document.getElementById("led-search").value = "";
   initLedgerPage();
 }
+
+// Event delegation for tx action buttons (avoids inline onclick quote nesting)
+document.addEventListener("click", function(e) {
+  const btn = e.target.closest("[data-action]");
+  if (!btn) return;
+  const action = btn.dataset.action;
+  const txId   = btn.dataset.txid;
+  if (!txId) return;
+  if (action === "edit")    openEditTx(txId);
+  if (action === "cancel")  openCancelTx(txId);
+  if (action === "reverse") openReverseTx(txId);
+});
+
 
 function openEditTx(txId) {
   const row = _txRows.find(r => r.txId === txId);
