@@ -804,7 +804,7 @@
               <label>Transaction Type</label>
               <select id="led-type">
                 <option value="">All Types</option>
-                <option value="production">Production</option>
+                <option value="production">Production / PO</option>
                 <option value="purchase">Purchase</option>
                 <option value="dispatch">Dispatch</option>
               </select>
@@ -1324,8 +1324,12 @@ function poStatusBadge(status) {
   return '<span class="' + (map[status] || "badge badge-grey") + '">' + (status||"—") + '</span>';
 }
 function txBadge(type) {
-  const m = { Production:"badge-green", Purchase:"badge-blue", Dispatch:"badge-orange", Adjustment:"badge-purple" };
-  return '<span class="badge ' + (m[type]||"badge-grey") + '">' + type + '</span>';
+  const m = {
+    Production:"badge-green", Purchase:"badge-blue", Dispatch:"badge-orange",
+    Adjustment:"badge-purple", ProductionOrder:"badge-blue", Consumption:"badge-orange"
+  };
+  const label = type === "ProductionOrder" ? "PO Created" : type;
+  return '<span class="badge ' + (m[type]||"badge-grey") + '">' + label + '</span>';
 }
 </script>
 <script>
@@ -1453,12 +1457,12 @@ async function openDashCard(cardType) {
       if (!pos.length) { html = '<div style="color:var(--text-muted);padding:16px">No active orders</div>'; }
       else {
         html = '<table class="data-table"><thead><tr><th>PO#</th><th>Product</th><th>Planned</th><th>Completed</th><th>Status</th></tr></thead><tbody>' +
-          pos.map(po => '<tr class="clickable" onclick="closeModal(\'modal-dash-card\');openPOAction(\'' + po.PONumber + '\')">' +
-            '<td style="font-family:IBM Plex Mono,monospace;font-size:12px">' + po.PONumber + '</td>' +
-            '<td>' + (po.ProductCode||"") + '</td>' +
-            '<td>' + fmtNum(po.PlannedQty) + '</td>' +
-            '<td>' + fmtNum(po.CompletedQty) + '</td>' +
-            '<td>' + poStatusBadge(po.Status) + '</td></tr>'
+          pos.map(po => '<tr class="clickable" onclick="closeModal(\'modal-dash-card\');openPOAction(\'' + po.poNumber + '\')">' +
+            '<td style="font-family:IBM Plex Mono,monospace;font-size:12px">' + po.poNumber + '</td>' +
+            '<td>' + (po.productName||po.productCode||"") + '</td>' +
+            '<td>' + fmtNum(po.plannedQty) + '</td>' +
+            '<td>' + fmtNum(po.completedQty) + '</td>' +
+            '<td>' + poStatusBadge(po.status) + '</td></tr>'
           ).join("") + '</tbody></table>';
       }
     } else if (cardType === "negativeRM") {
@@ -1648,7 +1652,13 @@ async function openPOAction(poNum) {
   document.getElementById("po-action-body").innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:20px">Loading...</div>';
   openModal("modal-po-action");
   try {
-    const po = allPOs.find(p => p.poNumber === poNum) || {};
+    // FIX: allPOs may be empty when called from Dashboard — fetch fresh if not found
+    let po = allPOs.find(p => p.poNumber === poNum);
+    if (!po) {
+      const freshData = await jsonp({ action: "getProductionOrders", status: "all" });
+      const freshPOs = freshData.orders || [];
+      po = freshPOs.find(p => p.poNumber === poNum) || {};
+    }
     const pct = po.plannedQty > 0 ? Math.round((po.completedQty / po.plannedQty) * 100) : 0;
     document.getElementById("po-action-body").innerHTML =
       '<div class="detail-row"><span class="detail-label">PO Number</span><span class="detail-value" style="font-family:IBM Plex Mono,monospace">' + poNum + '</span></div>' +
@@ -2087,6 +2097,7 @@ function switchReportTab(tab, btn) {
   document.querySelectorAll("#page-reports .tab-btn").forEach(b => b.classList.remove("active"));
   document.getElementById("rpanel-" + tab).classList.add("active");
   if (btn) btn.classList.add("active");
+  if (tab === "neg") loadAlertsReport();
 }
 
 function populateReportDateSelectors() {
@@ -2237,7 +2248,7 @@ async function loadAlertsReport() {
   try {
     const [negData, slowData] = await Promise.all([
       jsonp({ action: "getNegativeStock" }),
-      jsonp({ action: "getSlowMoving" })
+      jsonp({ action: "getSlowMoving", days: 90 })
     ]);
     showStatus("status-neg","","");
     const negRows = negData.items || [];
@@ -2271,6 +2282,8 @@ function initLedgerPage() {
   const monthAgo = new Date(now); monthAgo.setDate(monthAgo.getDate()-30);
   if (!document.getElementById("led-from").value) document.getElementById("led-from").value = monthAgo.toISOString().slice(0,10);
   if (!document.getElementById("led-to").value)   document.getElementById("led-to").value   = now.toISOString().slice(0,10);
+  // Auto-load so user sees transactions immediately on page visit
+  loadTransactions();
 }
 
 async function loadLedger() { return loadTransactions(); }
@@ -2311,7 +2324,7 @@ function renderTxTable(rows) {
       '<td>' + txBadge(r.txType) + '</td>' +
       '<td style="font-family:IBM Plex Mono,monospace;font-size:11px">' + r.code + '</td>' +
       '<td style="font-size:13px">' + (r.name||r.code) + '</td>' +
-      '<td style="font-family:IBM Plex Mono,monospace;font-weight:600;text-align:right">' + fmtNum(r.qty) + '</td>' +
+      '<td style="font-family:IBM Plex Mono,monospace;font-weight:600;text-align:right' + (r.qty < 0 ? ';color:var(--danger)' : '') + '">' + (r.qty < 0 ? '−' : '') + fmtNum(Math.abs(r.qty)) + '</td>' +
       '<td style="font-size:11px;color:var(--text-muted)">' + (r.ref||"—") + '</td>' +
       '<td>' + statusBadge + '</td>' +
       '<td>' + actions + '</td>' +
@@ -2320,12 +2333,20 @@ function renderTxTable(rows) {
 }
 
 function txStatusBadge(status) {
-  if (status === "Cancelled") return '<span class="badge badge-red">Cancelled</span>';
-  if (status === "Reversed")  return '<span class="badge badge-orange">Reversed</span>';
+  if (status === "Cancelled")  return '<span class="badge badge-red">Cancelled</span>';
+  if (status === "Reversed")   return '<span class="badge badge-orange">Reversed</span>';
+  if (status === "Completed")  return '<span class="badge badge-green">Completed</span>';
+  if (status === "In Production" || status === "Partially Completed")
+    return '<span class="badge badge-warn">' + status + '</span>';
+  if (status === "Planned")    return '<span class="badge badge-blue">Planned</span>';
   return '<span class="badge badge-green">Active</span>';
 }
 
 function buildTxActions(r) {
+  // PO rows are managed from the Production Orders page — no tx-level edit/cancel/reverse
+  if (r.isPO) {
+    return '<button class="btn btn-xs btn-secondary" onclick="showPage(\'orders\',document.getElementById(\'nav-orders\'))" title="View in Orders">View PO</button>';
+  }
   if (r.txStatus === "Cancelled") return '<span style="font-size:11px;color:var(--text-muted)">—</span>';
   if (r.txStatus === "Reversed")  return '<span style="font-size:11px;color:var(--text-muted)">—</span>';
   var id = r.txId;
